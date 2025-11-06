@@ -1,27 +1,70 @@
 "use client";
 
+import ProductCard from "@/src/components/common/card/ProductCard";
 import { ChevronUp, Heart, Package, Search, ShoppingCart, Star, User } from "@/src/components/icons";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { X } from "@/src/components/icons/X";
 import Header from "@/src/components/layout/Header";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 
+const PRODUCTS = [
+  {
+    id: 1,
+    name: "TOZO T6 True Wireless Earbuds Bluetooth Headphon...",
+    image: "/assets/images/mobile-1.png",
+    stars: 738,
+    price: 70,
+  },
+  {
+    id: 1,
+    name: "Samsung Electronics Samsung Galexy S21 5G",
+    image: "/assets/images/mobile-1.png",
+    stars: 738,
+    price: 70,
+  },
+  {
+    id: 1,
+    name: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/6...",
+    image: "/assets/images/mobile-1.png",
+    stars: 738,
+    price: 70,
+  },
+  {
+    id: 1,
+    name: "Portable Wshing Machine, 11lbs capacity Model 18NMF...",
+    image: "/assets/images/mobile-1.png",
+    stars: 738,
+    price: 70,
+  },
+  {
+    id: 1,
+    name: "TOZO T6 True Wireless Earbuds Bluetooth Headphon...",
+    image: "/assets/images/mobile-1.png",
+    stars: 738,
+    price: 70,
+  },
+];
+
 export default function HomePage() {
+  const router = useRouter();
   const [isShowQuickView, setShowQuickView] = useState(true);
 
   const handleToggleQuickView = useCallback(() => {
     setShowQuickView((prev) => !prev);
   }, []);
 
+  const navigateToProductDetail = useCallback((id: string) => {
+    router.push(`/product/${id}`);
+  }, []);
+
   return (
     <>
-      <div className="w-full ">
-        <Header />
-
+      <div className="w-full">
         <div className="max-w-[1320px] mx-auto p-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4 bg-white p-4 rounded-md shadow-sm">
+            <div className="flex flex-1 items-center gap-4 bg-white p-4 rounded-md shadow-sm">
               <Package className="w-8 h-8 text-secondary-700 shrink-0" />
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-800">Fasted Delivery</span>
@@ -29,27 +72,27 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-white p-4 rounded-md shadow-sm">
+            <div className="flex flex-1 items-center gap-4 bg-white p-4 rounded-md shadow-sm">
               <Package className="w-8 h-8 text-secondary-700 shrink-0" />
               <div className="flex flex-col">
-                <span className="font-semibold text-gray-800">Fasted Delivery</span>
-                <span className="text-gray-500 text-sm">Delivery in 24/H</span>
+                <span className="font-semibold text-gray-800">24 Hours Return</span>
+                <span className="text-gray-500 text-sm">100% money-back guarantee</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-white p-4 rounded-md shadow-sm">
+            <div className="flex flex-1 items-center gap-4 bg-white p-4 rounded-md shadow-sm">
               <Package className="w-8 h-8 text-secondary-700 shrink-0" />
               <div className="flex flex-col">
-                <span className="font-semibold text-gray-800">Fasted Delivery</span>
-                <span className="text-gray-500 text-sm">Delivery in 24/H</span>
+                <span className="font-semibold text-gray-800">Secure Payment</span>
+                <span className="text-gray-500 text-sm">Your money is safe</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-4 bg-white p-4 rounded-md shadow-sm">
+            <div className="flex flex-1 items-center gap-4 bg-white p-4 rounded-md shadow-sm">
               <Package className="w-8 h-8 text-secondary-700 shrink-0" />
               <div className="flex flex-col">
-                <span className="font-semibold text-gray-800">Fasted Delivery</span>
-                <span className="text-gray-500 text-sm">Delivery in 24/H</span>
+                <span className="font-semibold text-gray-800">Support 24/7</span>
+                <span className="text-gray-500 text-sm">Live contact/message</span>
               </div>
             </div>
           </div>
@@ -73,24 +116,26 @@ export default function HomePage() {
             {/* --- Categories --- */}
             <div className="flex gap-6 overflow-x-auto no-scrollbar">
               {/* Category Card */}
-              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full">Ảnh</div>
+              <button className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
+                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
                 <div className="font-medium text-gray-800">Computer & Laptop</div>
-              </div>
+              </button>
 
               <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full">Ảnh</div>
+                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
                 <div className="font-medium text-gray-800">SmartPhone</div>
               </div>
-
               <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full">Ảnh</div>
-                <div className="font-medium text-gray-800">Headphone</div>
+                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
+                <div className="font-medium text-gray-800">Headphones</div>
               </div>
-
               <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <div className="w-16 h-16 bg-gray-100 flex items-center justify-center rounded-full">Ảnh</div>
+                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
                 <div className="font-medium text-gray-800">Accessories</div>
+              </div>
+              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
+                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
+                <div className="font-medium text-gray-800">Camera & Photo</div>
               </div>
             </div>
           </div>
@@ -113,56 +158,71 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* --- Products Grid --- */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-              {/* Product Card */}
-              <div className="bg-white p-4 rounded-md shadow hover:shadow-md transition">
-                <div className="h-40 bg-gray-100 mb-4 flex items-center justify-center">Anh</div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-yellow-500">***** (738)</span>
-                </div>
-                <div className="text-gray-800 font-semibold mb-2">
-                  TOZO T6 True Wireless Earbuds Bluetooth Headphone
-                </div>
-                <div className="text-primary font-bold text-lg">$70</div>
-              </div>
-
-              {/* Copy product card cho các sản phẩm khác */}
-              <div className="bg-white p-4 rounded-md shadow hover:shadow-md transition">
-                <div className="h-40 bg-gray-100 mb-4 flex items-center justify-center">Anh</div>
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-yellow-500">***** (738)</span>
-                </div>
-                <div className="text-gray-800 font-semibold mb-2">
-                  TOZO T6 True Wireless Earbuds Bluetooth Headphone
-                </div>
-                <div className="text-primary font-bold text-lg">$70</div>
-              </div>
+            <div className="grid grid-cols-12 gap-6">
+              {PRODUCTS.map((product) => (
+                <button className="col-span-3" onClick={() => navigateToProductDetail("1")}>
+                  <ProductCard
+                    key={product.id}
+                    name={product.name}
+                    image={product.image}
+                    price={product?.price}
+                    stars={product?.stars}
+                  />
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="flex mt-[72]">
+          <div className="flex gap-6 my-[72]">
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">FLASH SALE TODAY</h2>
+                <span className="text-body-medium-600">RELATED PRODUCT</span>
               </div>
 
               {/* --- Grid các sản phẩm --- */}
-              <div className="gap-6">
+              <div className="space-y-4">
+                {/* Product Card */}
+                {Array(3)
+                  .fill(0)
+                  .map((_, idx) => (
+                    <button
+                      key={idx}
+                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                      onClick={handleToggleQuickView}
+                    >
+                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
+                      <div className="">
+                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
+                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
+                        </h3>
+                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                      </div>
+                    </button>
+                  ))}
+              </div>
+            </div>
+
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <span className="text-body-medium-600">PRODUCT ACCESSORIES</span>
+              </div>
+
+              {/* --- Grid các sản phẩm --- */}
+              <div className="space-y-4">
                 {/* Product Card */}
                 {Array(3)
                   .fill(0)
                   .map((_, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-lg h-[104] flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                     >
-                      <div className="w-full  bg-gray-100 flex items-center justify-center">Image</div>
-                      <div className="p-4">
-                        <h3 className="text-gray-800 font-medium text-sm mb-2 line-clamp-2">
+                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
+                      <div className="">
+                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
                           Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                         </h3>
-                        <div className="text-primary-600 font-semibold text-lg">$1,500</div>
+                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
                       </div>
                     </div>
                   ))}
@@ -171,25 +231,25 @@ export default function HomePage() {
 
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">FLASH SALE TODAY</h2>
+                <span className="text-body-medium-600">APPLE PRODUCT</span>
               </div>
 
               {/* --- Grid các sản phẩm --- */}
-              <div className="gap-6">
+              <div className="space-y-4">
                 {/* Product Card */}
                 {Array(3)
                   .fill(0)
                   .map((_, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-lg h-[104] flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                     >
-                      <div className="w-full  bg-gray-100 flex items-center justify-center">Image</div>
-                      <div className="p-4">
-                        <h3 className="text-gray-800 font-medium text-sm mb-2 line-clamp-2">
+                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
+                      <div className="">
+                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
                           Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                         </h3>
-                        <div className="text-primary-600 font-semibold text-lg">$1,500</div>
+                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
                       </div>
                     </div>
                   ))}
@@ -198,52 +258,25 @@ export default function HomePage() {
 
             <div>
               <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">FLASH SALE TODAY</h2>
+                <span className="text-body-medium-600">FEATURED PRODUCTS</span>
               </div>
 
               {/* --- Grid các sản phẩm --- */}
-              <div className="gap-6">
+              <div className="space-y-4">
                 {/* Product Card */}
                 {Array(3)
                   .fill(0)
                   .map((_, idx) => (
                     <div
                       key={idx}
-                      className="bg-white rounded-lg h-[104] flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                     >
-                      <div className="w-full  bg-gray-100 flex items-center justify-center">Image</div>
-                      <div className="p-4">
-                        <h3 className="text-gray-800 font-medium text-sm mb-2 line-clamp-2">
+                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
+                      <div className="">
+                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
                           Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                         </h3>
-                        <div className="text-primary-600 font-semibold text-lg">$1,500</div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold text-gray-900">FLASH SALE TODAY</h2>
-              </div>
-
-              {/* --- Grid các sản phẩm --- */}
-              <div className="gap-6">
-                {/* Product Card */}
-                {Array(3)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-lg h-[104] flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
-                    >
-                      <div className="w-full  bg-gray-100 flex items-center justify-center">Image</div>
-                      <div className="p-4">
-                        <h3 className="text-gray-800 font-medium text-sm mb-2 line-clamp-2">
-                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
-                        </h3>
-                        <div className="text-primary-600 font-semibold text-lg">$1,500</div>
+                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
                       </div>
                     </div>
                   ))}
@@ -259,9 +292,9 @@ export default function HomePage() {
         <div className="w-screen h-screen fixed top-0 left-0 flex justify-center items-center">
           <div className="absolute top-0 left-0 bg-black opacity-80 w-screen h-screen"></div>
           <div className="relative w-[80%] max-w-[1400] flex gap-14 bg-white z-10 p-10 rounded-sm">
-            <div className="absolute top-3 right-3" onClick={handleToggleQuickView}>
+            <button className="absolute top-3 right-3" onClick={handleToggleQuickView}>
               <X />
-            </div>
+            </button>
             <div className="">
               <div>
                 <Image src="/assets/images/laptop-main.png" alt="Laptop main image" width={616} height={464} priority />

@@ -106,7 +106,7 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <Line />
+          <Line my={3} />
 
           <div className="w-full">
             <span className="text-label-2 uppercase">Price Range</span>
@@ -131,7 +131,7 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <Line />
+          <Line my={3} />
 
           <div className="w-full">
             <span className="text-label-2 uppercase">Popular Brands</span>
@@ -146,7 +146,7 @@ export default function ShopPage() {
             </div>
           </div>
 
-          <Line />
+          <Line my={3} />
 
           <div className="w-full">
             <span className="text-label-2 uppercase">Popular Tag</span>

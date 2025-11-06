@@ -4,15 +4,11 @@ import { Headphones } from "@/src/components/icons/Headphones";
 import { Medal } from "@/src/components/icons/Medal";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
-import { X } from "@/src/components/icons/X";
-import Header from "@/src/components/layout/Header";
 import Image from "next/image";
 
 export default function ProductDetailPage() {
   return (
     <div className="w-full">
-      <Header />
-
       <div className="w-[80%] max-w-[1320px] mx-auto">
         <div className="flex gap-14 bg-white z-10 mt-8 rounded-sm">
           <div className="">
