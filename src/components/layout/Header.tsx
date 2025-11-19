@@ -5,13 +5,19 @@ import { Heart, Search, ShoppingCart, User } from "../icons";
 import { X } from "../icons/X";
 import { ArrowRight } from "../icons/ArrowRight";
 import { useCallback, useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+  const pathname = usePathname();
   const [isShopCartVisible, setShopCartVisible] = useState(false);
 
   const handleToggleShopCart = useCallback(() => {
     setShopCartVisible((prev) => !prev);
   }, []);
+
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
   return (
     <div className="w-full bg-secondary-700">

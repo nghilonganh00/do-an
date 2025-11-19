@@ -4,52 +4,18 @@ import ProductCard from "@/src/components/common/card/ProductCard";
 import { ChevronUp, Heart, Package, Search, ShoppingCart, Star, User } from "@/src/components/icons";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { X } from "@/src/components/icons/X";
-import Header from "@/src/components/layout/Header";
+import { getAllCategories } from "@/src/features/category/api/getAllCategories";
+import { getProducts } from "@/src/features/products/apis/getProducts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
-
-const PRODUCTS = [
-  {
-    id: 1,
-    name: "TOZO T6 True Wireless Earbuds Bluetooth Headphon...",
-    image: "/assets/images/mobile-1.png",
-    stars: 738,
-    price: 70,
-  },
-  {
-    id: 1,
-    name: "Samsung Electronics Samsung Galexy S21 5G",
-    image: "/assets/images/mobile-1.png",
-    stars: 738,
-    price: 70,
-  },
-  {
-    id: 1,
-    name: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/6...",
-    image: "/assets/images/mobile-1.png",
-    stars: 738,
-    price: 70,
-  },
-  {
-    id: 1,
-    name: "Portable Wshing Machine, 11lbs capacity Model 18NMF...",
-    image: "/assets/images/mobile-1.png",
-    stars: 738,
-    price: 70,
-  },
-  {
-    id: 1,
-    name: "TOZO T6 True Wireless Earbuds Bluetooth Headphon...",
-    image: "/assets/images/mobile-1.png",
-    stars: 738,
-    price: 70,
-  },
-];
+import { useCallback, useEffect, useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
   const [isShowQuickView, setShowQuickView] = useState(true);
+  const [topRatedProducts, setTopRatedProducts] = useState<any[]>([]);
+  const [latestProducts, setLatestProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
 
   const handleToggleQuickView = useCallback(() => {
     setShowQuickView((prev) => !prev);
@@ -58,6 +24,36 @@ export default function HomePage() {
   const navigateToProductDetail = useCallback((id: string) => {
     router.push(`/product/${id}`);
   }, []);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { topRated, latest } = await getProducts({ topLimit: 5, latestLimit: 8 });
+        if (!topRated || !latest) return;
+        setTopRatedProducts(topRated);
+        setLatestProducts(latest);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const data = await getAllCategories();
+        if (!data) return;
+        setCategories(data);
+      } catch (error) {
+        console.error("Failed to fetch products", error);
+      } finally {
+      }
+    };
+
+    fetchProducts();
+    fetchCategories();
+  }, []);
+
+  console.log("product: ", topRatedProducts);
 
   return (
     <>
@@ -103,40 +99,34 @@ export default function HomePage() {
               <h2 className="text-2xl font-bold">Shop with Category</h2>
 
               {/* Arrows */}
-              <div className="flex gap-2">
+              {/* <div className="flex gap-2">
                 <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition">
                   <span className="material-icons">arrow_back</span>
                 </button>
                 <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition">
                   <span className="material-icons">arrow_forward</span>
                 </button>
-              </div>
+              </div> */}
             </div>
 
             {/* --- Categories --- */}
             <div className="flex gap-6 overflow-x-auto no-scrollbar">
-              {/* Category Card */}
-              <button className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
-                <div className="font-medium text-gray-800">Computer & Laptop</div>
-              </button>
-
-              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
-                <div className="font-medium text-gray-800">SmartPhone</div>
-              </div>
-              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
-                <div className="font-medium text-gray-800">Headphones</div>
-              </div>
-              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
-                <div className="font-medium text-gray-800">Accessories</div>
-              </div>
-              <div className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3">
-                <Image src={"/assets/images/laptop-category.png"} alt="Computer & Laptop" width={148} height={148} />
-                <div className="font-medium text-gray-800">Camera & Photo</div>
-              </div>
+              {categories?.map((category, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3"
+                  >
+                    <Image
+                      src={"/assets/images/laptop-category.png"}
+                      alt="Computer & Laptop"
+                      width={148}
+                      height={148}
+                    />
+                    <div className="font-medium text-gray-800">{category?.name}</div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
@@ -148,19 +138,24 @@ export default function HomePage() {
               <div className="flex items-center gap-4 text-gray-600">
                 <div className="flex gap-3">
                   <button className="hover:text-primary">All Product</button>
-                  <button className="hover:text-primary">Smart Phone</button>
-                  <button className="hover:text-primary">Laptop</button>
-                  <button className="hover:text-primary">Headphone</button>
-                  <button className="hover:text-primary">Tv</button>
+                  {categories.map((category, index) => {
+                    return (
+                      <button key={index} className="hover:text-primary">
+                        {category?.name}
+                      </button>
+                    );
+                  })}
                 </div>
 
-                <button className="text-sm text-primary hover:underline">Browse All Product</button>
+                <button className="text-sm text-primary hover:underline" onClick={() => router.push("/shop")}>
+                  Browse All Product
+                </button>
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-6">
-              {PRODUCTS.map((product) => (
-                <button className="col-span-3" onClick={() => navigateToProductDetail("1")}>
+              {topRatedProducts.map((product) => (
+                <button key={product?.id} className="col-span-3" onClick={() => navigateToProductDetail(product.id)}>
                   <ProductCard
                     key={product.id}
                     name={product.name}

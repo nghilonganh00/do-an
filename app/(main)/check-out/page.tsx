@@ -1,16 +1,21 @@
+"use client";
+
 import CheckBox from "@/src/components/common/input/Checkbox";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
 import { Check } from "@/src/components/icons/Check";
 import { Stack } from "@/src/components/icons/Stack";
-import Header from "@/src/components/layout/Header";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function CheckoutPage() {
-  const isSucess = true;
+  const router = useRouter();
+
+  const [isPlacedOrder, setPlacedOrder] = useState(false);
 
   return (
     <>
-      {!isSucess ? (
+      {!isPlacedOrder ? (
         <div className="max-w-[1320px] mx-auto py-[72px] grid grid-cols-12 gap-6">
           <div className="col-span-8">
             <h3 className="text-body-large-500">Billing Information</h3>
@@ -117,7 +122,10 @@ export default function CheckoutPage() {
                 <span className="text-body-small-600">$357.99 USD</span>
               </div>
 
-              <button className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">
+              <button
+                className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
+                onClick={() => setPlacedOrder(true)}
+              >
                 <span className="text-heading-7 text-gray uppercase">Place order</span>
                 <ArrowRight />
               </button>
@@ -138,12 +146,18 @@ export default function CheckoutPage() {
             </span>
 
             <div className="w-full flex items-center justify-between gap-3">
-              <button className="w-full h-12 flex-1 flex items-center justify-center gap-2 mt-6 border-2 border-primary-100 rounded-xs">
+              <button
+                className="w-full h-12 flex-1 flex items-center justify-center gap-2 mt-6 border-2 border-primary-100 rounded-xs"
+                onClick={() => router.push("/")}
+              >
                 <Stack color="#FA8232" />
                 <span className="text-heading-7 text-primary-500">Go to Dashboard</span>
               </button>
 
-              <button className="w-full h-12 flex-1 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">
+              <button
+                className="w-full h-12 flex-1 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
+                onClick={() => router.push("/dashboard/order-detail")}
+              >
                 <span className="text-heading-7 text-gray">View Order</span>
                 <ArrowRight />
               </button>

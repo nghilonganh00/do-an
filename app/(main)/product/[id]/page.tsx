@@ -1,3 +1,5 @@
+"use client";
+
 import { ChevronUp, CreditCard, Heart, Star } from "@/src/components/icons";
 import { Handshake } from "@/src/components/icons/Handshake";
 import { Headphones } from "@/src/components/icons/Headphones";
@@ -5,8 +7,11 @@ import { Medal } from "@/src/components/icons/Medal";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ProductDetailPage() {
+  const router = useRouter();
+
   return (
     <div className="w-full">
       <div className="w-[80%] max-w-[1320px] mx-auto">
@@ -108,10 +113,13 @@ export default function ProductDetailPage() {
                   <span>01</span>
                   <span>+</span>
                 </div>
-                <div className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3">
+                <button
+                  className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3"
+                  onClick={() => router.push("/shopping-card")}
+                >
                   <span className="text-heading-3 text-gray">ADD TO CARD</span>
                   <ShoppingCartSimple />
-                </div>
+                </button>
 
                 <div className="col-span-3 h-full flex justify-center items-center border-2 border-primary-500 rounded-[3px]">
                   <span className="text-heading-6 text-primary-500">Buy now</span>

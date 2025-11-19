@@ -1,14 +1,17 @@
+"use client";
+
 import { Line } from "@/src/components/common/Line";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
 import { X } from "@/src/components/icons/X";
 import Header from "@/src/components/layout/Header";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function ShoppingCard() {
+  const router = useRouter();
+
   return (
     <div className="w-full">
-      <Header />
-
       <div className="max-w-[1320px] grid grid-cols-12 mt-[72px]">
         <div className="col-span-8">
           <div className="px-6 py-5 w-full">
@@ -84,7 +87,10 @@ export default function ShoppingCard() {
               <span className="text-body-small-600">$357.99 USD</span>
             </div>
 
-            <button className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">
+            <button
+              className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
+              onClick={() => router.push("check-out")}
+            >
               <span className="text-heading-7 text-gray">Proceed to Checkout</span>
               <ArrowRight />
             </button>

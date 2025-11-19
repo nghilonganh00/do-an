@@ -6,16 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "seed": "ts-node prisma/seed.ts"
   },
   "dependencies": {
+    "@prisma/client": "^6.19.0",
+    "@supabase/supabase-js": "^2.81.1",
     "@tailwindcss/line-clamp": "^0.4.4",
     "@tanstack/react-query": "^5.90.5",
     "axios": "^1.13.1",
     "dayjs": "^1.11.18",
+    "lucide-react": "^0.553.0",
+    "lucide-react-native": "^0.553.0",
     "next": "16.0.1",
+    "prisma": "^6.19.0",
     "react": "19.2.0",
     "react-dom": "19.2.0",
+    "recharts": "^3.4.1",
     "zod": "^4.1.12",
     "zustand": "^5.0.8"
   },

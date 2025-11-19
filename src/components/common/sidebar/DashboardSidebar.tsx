@@ -9,12 +9,12 @@ const menuItems = [
   { name: "Dashboard", icon: Stack, path: "/dashboard", active: false },
   { name: "Order History", icon: StoreFront, path: "/dashboard/orders", active: true },
   { name: "Track Order", icon: Stack, path: "/track", active: false },
-  { name: "Shopping Cart", icon: Stack, path: "/cart", active: false },
+  { name: "Shopping Cart", icon: Stack, path: "/shopping-card", active: false },
   { name: "Wishlist", icon: Stack, path: "/wishlist", active: false },
   { name: "Compare", icon: Stack, path: "/compare", active: false },
   { name: "Cards & Address", icon: Stack, path: "/cards", active: false },
   { name: "Browsing History", icon: Stack, path: "/history", active: false },
-  { name: "Setting", icon: Stack, path: "/settings", active: false },
+  { name: "Setting", icon: Stack, path: "/dashboard/setting", active: false },
   { name: "Log-out", icon: Stack, path: "/logout", active: false },
 ];
 

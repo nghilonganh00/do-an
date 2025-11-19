@@ -1,6 +1,9 @@
+"use client";
+
 import ProductCard from "@/src/components/common/card/ProductCard";
 import CheckBox from "@/src/components/common/input/Checkbox";
 import Dropdown from "@/src/components/common/input/Dropdown";
+import RadioGroup, { RadioGroupItem } from "@/src/components/common/input/RadioGroup";
 import { Line } from "@/src/components/common/Line";
 import Tag from "@/src/components/common/Tag";
 import { Search, Star } from "@/src/components/icons";
@@ -9,18 +12,19 @@ import { Check } from "@/src/components/icons/Check";
 import { X } from "@/src/components/icons/X";
 import Header from "@/src/components/layout/Header";
 import Image from "next/image";
+import { useState } from "react";
 
-const CATEGORIES = [
-  "Electronics Devices",
-  "Computer & Laptop",
-  "Computer Accessories",
-  "SmartPhone",
-  "Headphone",
-  "Mobile Accessories",
-  "Gaming Console",
-  "Camera & Photo",
-  "TV & Homes Appliances",
-  "Watchs & Accessories",
+const CATEGORIES: RadioGroupItem[] = [
+  { id: 1, label: "Electronics Devices", value: "electronics-devices" },
+  { id: 2, label: "Computer & Laptop", value: "computer-laptop" },
+  { id: 3, label: "Computer Accessories", value: "computer-accessories" },
+  { id: 4, label: "SmartPhone", value: "smartphone" },
+  { id: 5, label: "Headphone", value: "headphone" },
+  { id: 6, label: "Mobile Accessories", value: "mobile-accessories" },
+  { id: 7, label: "Gaming Console", value: "gaming-console" },
+  { id: 8, label: "Camera & Photo", value: "camera-photo" },
+  { id: 9, label: "TV & Homes Appliances", value: "tv-homes-appliances" },
+  { id: 10, label: "Watchs & Accessories", value: "watchs-accessories" },
 ];
 
 const PRICE_RANGES = [
@@ -58,28 +62,28 @@ const PRODUCTS = [
     price: 70,
   },
   {
-    id: 1,
+    id: 2,
     name: "Samsung Electronics Samsung Galexy S21 5G",
     image: "/assets/images/mobile-1.png",
     stars: 738,
     price: 70,
   },
   {
-    id: 1,
+    id: 3,
     name: "Amazon Basics High-Speed HDMI Cable (18 Gbps, 4K/6...",
     image: "/assets/images/mobile-1.png",
     stars: 738,
     price: 70,
   },
   {
-    id: 1,
+    id: 4,
     name: "Portable Wshing Machine, 11lbs capacity Model 18NMF...",
     image: "/assets/images/mobile-1.png",
     stars: 738,
     price: 70,
   },
   {
-    id: 1,
+    id: 5,
     name: "TOZO T6 True Wireless Earbuds Bluetooth Headphon...",
     image: "/assets/images/mobile-1.png",
     stars: 738,
@@ -88,21 +92,15 @@ const PRODUCTS = [
 ];
 
 export default function ShopPage() {
+  const [category, setCategory] = useState(CATEGORIES[0]);
   return (
     <div className="w-full">
-      <Header />
-
       <div className="max-w-[1320px] grid grid-cols-12 mx-auto pt-10 gap-6">
         <div className="col-span-3">
           <div>
             <span className="text-label-2 uppercase">Category</span>
-            <div className="space-y-3 mt-4">
-              {CATEGORIES.map((category, index) => (
-                <button key={index} className="flex items-center gap-2">
-                  <div className="w-5 h-5 border rounded-full border-gray-200" />
-                  <span className="text-body-small-500">{category}</span>
-                </button>
-              ))}
+            <div className="mt-4">
+              <RadioGroup list={CATEGORIES} value={category} onChange={(category) => setCategory(category)} />
             </div>
           </div>
 
@@ -138,10 +136,10 @@ export default function ShopPage() {
 
             <div className="grid grid-cols-12 space-y-3 mt-4 gap-2">
               {POPULAR_BRANDS.map((category, index) => (
-                <button key={index} className="col-span-6 flex items-center gap-2">
+                <div key={index} className="col-span-6 flex items-center gap-2">
                   <CheckBox />
                   <span className="text-body-small-500">{category}</span>
-                </button>
+                </div>
               ))}
             </div>
           </div>
