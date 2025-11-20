@@ -1,11 +1,17 @@
 "use client";
 
 import ProductCard from "@/src/components/common/card/ProductCard";
-import { ChevronUp, Heart, Package, Search, ShoppingCart, Star, User } from "@/src/components/icons";
+import TabsBar from "@/src/components/common/TabsBar";
+import { ChevronUp, Heart, Package, Star, User } from "@/src/components/icons";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
+import { Trophy } from "@/src/components/icons/Trophy";
 import { X } from "@/src/components/icons/X";
 import { getAllCategories } from "@/src/features/category/api/getAllCategories";
+import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { getProducts } from "@/src/features/products/apis/getProducts";
+import { useGetProducts } from "@/src/features/products/hooks/useGetProducts";
+import { TabItem } from "@/src/types";
+import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
@@ -15,42 +21,28 @@ export default function HomePage() {
   const [isShowQuickView, setShowQuickView] = useState(true);
   const [topRatedProducts, setTopRatedProducts] = useState<any[]>([]);
   const [latestProducts, setLatestProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+
+  const { data: categories } = useGetAllCategories();
+
+  const categoryTabs: TabItem[] =
+    categories?.map((c) => ({
+      value: c?.id || "",
+      label: c.name || "",
+    })) || [];
+
+  const [selectedCategoryFilter, setSelectedCategoryFilter] = useState<TabItem | null>(null);
+  const { data: products } = useGetProducts({
+    params: { categoryId: selectedCategoryFilter?.value?.toString() || "" },
+  });
 
   const handleToggleQuickView = useCallback(() => {
     setShowQuickView((prev) => !prev);
   }, []);
 
-  const navigateToProductDetail = useCallback((id: string) => {
+  const navigateToProductDetail = useCallback((id: string | null) => {
+    if (!id) return;
+
     router.push(`/product/${id}`);
-  }, []);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const { topRated, latest } = await getProducts({ topLimit: 5, latestLimit: 8 });
-        if (!topRated || !latest) return;
-        setTopRatedProducts(topRated);
-        setLatestProducts(latest);
-      } catch (error) {
-        console.error("Failed to fetch products", error);
-      } finally {
-      }
-    };
-
-    const fetchCategories = async () => {
-      try {
-        const data = await getAllCategories();
-        if (!data) return;
-        setCategories(data);
-      } catch (error) {
-        console.error("Failed to fetch products", error);
-      } finally {
-      }
-    };
-
-    fetchProducts();
-    fetchCategories();
   }, []);
 
   console.log("product: ", topRatedProducts);
@@ -69,7 +61,7 @@ export default function HomePage() {
             </div>
 
             <div className="flex flex-1 items-center gap-4 bg-white p-4 rounded-md shadow-sm">
-              <Package className="w-8 h-8 text-secondary-700 shrink-0" />
+              <Trophy className="w-8 h-8 text-secondary-700 shrink-0" />
               <div className="flex flex-col">
                 <span className="font-semibold text-gray-800">24 Hours Return</span>
                 <span className="text-gray-500 text-sm">100% money-back guarantee</span>
@@ -97,16 +89,6 @@ export default function HomePage() {
             {/* --- Title --- */}
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-2xl font-bold">Shop with Category</h2>
-
-              {/* Arrows */}
-              {/* <div className="flex gap-2">
-                <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition">
-                  <span className="material-icons">arrow_back</span>
-                </button>
-                <button className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center hover:bg-primary hover:text-white transition">
-                  <span className="material-icons">arrow_forward</span>
-                </button>
-              </div> */}
             </div>
 
             {/* --- Categories --- */}
@@ -117,12 +99,7 @@ export default function HomePage() {
                     key={index}
                     className="shrink-0 w-[205] h-[236] bg-white rounded-lg shadow hover:shadow-md transition flex flex-col items-center justify-center gap-3"
                   >
-                    <Image
-                      src={"/assets/images/laptop-category.png"}
-                      alt="Computer & Laptop"
-                      width={148}
-                      height={148}
-                    />
+                    <img src={category?.image} alt={category?.name} width={148} height={148} />
                     <div className="font-medium text-gray-800">{category?.name}</div>
                   </div>
                 );
@@ -137,29 +114,33 @@ export default function HomePage() {
 
               <div className="flex items-center gap-4 text-gray-600">
                 <div className="flex gap-3">
-                  <button className="hover:text-primary">All Product</button>
-                  {categories.map((category, index) => {
-                    return (
-                      <button key={index} className="hover:text-primary">
-                        {category?.name}
-                      </button>
-                    );
-                  })}
+                  <TabsBar
+                    tabs={categoryTabs}
+                    activeTab={selectedCategoryFilter}
+                    onChange={(category) => setSelectedCategoryFilter(category)}
+                  />
                 </div>
 
-                <button className="text-sm text-primary hover:underline" onClick={() => router.push("/shop")}>
+                <button
+                  className="text-body-small-600 text-primary hover:underline text-primary-500"
+                  onClick={() => router.push("/shop")}
+                >
                   Browse All Product
                 </button>
               </div>
             </div>
 
             <div className="grid grid-cols-12 gap-6">
-              {topRatedProducts.map((product) => (
-                <button key={product?.id} className="col-span-3" onClick={() => navigateToProductDetail(product.id)}>
+              {products?.map((product) => (
+                <button
+                  key={product?.id}
+                  className="col-span-3"
+                  onClick={() => navigateToProductDetail(product?.id?.toString() || null)}
+                >
                   <ProductCard
                     key={product.id}
                     name={product.name}
-                    image={product.image}
+                    image={product?.image}
                     price={product?.price}
                     stars={product?.stars}
                   />

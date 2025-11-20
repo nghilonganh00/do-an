@@ -1,7 +1,15 @@
+"use client";
+
 import CheckBox from "@/src/components/common/input/Checkbox";
+import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { X } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const AddProductPage = () => {
+  const router = useRouter();
+
+  const { data: categories, isLoading: isLoadingCategories } = useGetAllCategories();
+
   return (
     <div className="px-10 py-6 ">
       <div className="flex items-center justify-between">
@@ -61,15 +69,13 @@ const AddProductPage = () => {
           <div className="bg-white p-7">
             <h5 className="text-body-medium-600">Categories</h5>
             <div className="space-y-3 mt-6">
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
-              <CheckBox title="Women" />
+              {categories?.map((category) => (
+                <CheckBox key={category.id} title={category?.name || ""} />
+              ))}
             </div>
-            <button className="mt-5 text-[#1E5EFF]">Create New</button>
+            <button className="mt-5 text-[#1E5EFF]" onClick={() => router.push("/admin/categories/add")}>
+              Create New
+            </button>
           </div>
 
           <div className="bg-white p-7">

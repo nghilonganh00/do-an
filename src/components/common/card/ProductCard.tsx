@@ -3,13 +3,7 @@
 import Image from "next/image";
 import { Star } from "../../icons";
 import { useRouter } from "next/navigation";
-
-type Product = {
-  name?: string;
-  image: string;
-  stars?: number;
-  price?: number;
-};
+import { Product } from "@/src/types/product";
 
 export default function ProductCard({ name, image, stars, price }: Product) {
   const router = useRouter();

@@ -6,11 +6,15 @@ import { Headphones } from "@/src/components/icons/Headphones";
 import { Medal } from "@/src/components/icons/Medal";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
+import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 
 export default function ProductDetailPage() {
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
+
+  const { data: product } = useGetProductById(id);
 
   return (
     <div className="w-full">
@@ -32,18 +36,14 @@ export default function ProductDetailPage() {
           <div className="">
             <div className="flex gap-1.5 items-center">
               <div className="flex">
-                <Star />
-                <Star />
-                <Star />
-                <Star />
-                <Star />
+                {Array.from({ length: product?.stars || 0 }).map((_, index) => (
+                  <Star key={index} />
+                ))}
               </div>
-              <span className="text-body-small-600">4.7 Star Rating</span>
+              <span className="text-body-small-600">{product?.stars || 0} Star Rating</span>
               <span className="text-body-small-400 text-gray-600">(21,671 User feedback)</span>
             </div>
-            <span className="text-body-xl-400 mt-2">
-              2020 Apple MacBook Pro with Apple M1 Chip (13-inch, 8GB RAM, 256GB SSD Storage) - Space Gray
-            </span>
+            <span className="text-body-xl-400 mt-2">{product?.name || ""}</span>
             <div className="mt-4">
               <div className="flex ">
                 <div className="flex-1">
@@ -67,10 +67,15 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="flex mt-6 items-center">
-              <span className="text-heading-3 text-secondary-500">$1699</span>
-              <span className="text-lg text-gray-500 ml-1">$1999.9</span>
+              <span className="text-heading-3 text-secondary-500">${product?.price || 0}</span>
+              <span className="text-lg text-gray-500 ml-1">${product?.originalPrice || 0}</span>
               <div className="ml-3 bg-warning-400 px-[10] py-[5]">
-                <span className="text-body-small-600">21% OFF</span>
+                <span className="text-body-small-600">
+                  {Math.round(
+                    (((product?.originalPrice || 0) - (product?.price || 0)) / (product?.originalPrice || 1)) * 100
+                  )}
+                  % OFF
+                </span>
               </div>
             </div>
 

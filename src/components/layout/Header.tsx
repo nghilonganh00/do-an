@@ -4,12 +4,19 @@ import Image from "next/image";
 import { Heart, Search, ShoppingCart, User } from "../icons";
 import { X } from "../icons/X";
 import { ArrowRight } from "../icons/ArrowRight";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { usePathname } from "next/navigation";
+import { useGetMyShoppingCart } from "@/src/features/shoppingCart/hooks/useGetMyShoppingCart";
 
 export default function Header() {
   const pathname = usePathname();
   const [isShopCartVisible, setShopCartVisible] = useState(false);
+  const { data: shoppingCartItems } = useGetMyShoppingCart();
+  const totalPrice = useMemo(() => {
+    return shoppingCartItems?.reduce((total, item) => {
+      return total + (item?.product?.price || 0) * (item?.quantity || 0);
+    }, 0);
+  }, [shoppingCartItems]);
 
   const handleToggleShopCart = useCallback(() => {
     setShopCartVisible((prev) => !prev);
@@ -40,52 +47,40 @@ export default function Header() {
             </button>
 
             {isShopCartVisible && (
-              <div className="absolute right-0 w-[328px] bg-white border border-gray-100 rounded-sm z-50">
+              <div className="absolute right-0 w-[376px] bg-white border border-gray-100 rounded-sm z-50 shadow">
                 <div className="px-6 py-4 border-b border-gray-100">
                   <span className="text-body-medium-500 text-gray-900">Shopping Cart </span>
                   <span className="text-body-medium-400 text-gray-600">(02)</span>
                 </div>
 
                 <div className="px-6 py-5 space-y-4 border-b border-gray-100">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="border border-gray-100 ">
-                      <Image src="/assets/images/product-01.png" alt="Product" width={80} height={80} />
-                    </div>
-
-                    <div>
-                      <span className="text-body-small-400 text-gray-900">
-                        Canon EOS 1500D DSLR Camera Body+ 18-55 mm
-                      </span>
-                      <div className="mt-2">
-                        <span className="text-body-small-400 text-gray-600">1 x</span>
-                        <span className="text-body-small-600 text-secondary-500 ml-1">$1,500</span>
+                  {shoppingCartItems?.map((item) => (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="border border-gray-100 ">
+                        <img src={item?.product?.image || ""} alt={item?.product?.name || ""} width={80} height={80} />
                       </div>
-                    </div>
 
-                    <X size={16} />
-                  </div>
-
-                  <div className="flex items-center justify-between gap-4">
-                    <Image src="/assets/images/product-01.png" alt="Product" width={80} height={80} />
-
-                    <div>
-                      <span className="text-body-small-400 text-gray-900">
-                        Canon EOS 1500D DSLR Camera Body+ 18-55 mm
-                      </span>
-                      <div className="mt-2">
-                        <span className="text-body-small-400 text-gray-600">1 x</span>
-                        <span className="text-body-small-600 text-secondary-500 ml-1">$1,500</span>
+                      <div>
+                        <span className="text-body-small-400 text-gray-900">
+                          Canon EOS 1500D DSLR Camera Body+ 18-55 mm
+                        </span>
+                        <div className="mt-2">
+                          <span className="text-body-small-400 text-gray-600">{item?.quantity || 0} x</span>
+                          <span className="text-body-small-600 text-secondary-500 ml-1">
+                            ${item?.product?.price || 0}
+                          </span>
+                        </div>
                       </div>
-                    </div>
 
-                    <X size={16} />
-                  </div>
+                      <X size={16} />
+                    </div>
+                  ))}
                 </div>
 
                 <div className="px-6 py-5 ">
                   <div className="flex items-center justify-between">
                     <span className="text-body-small-400 text-gray-600">Sub-Total:</span>
-                    <span className="text-body-small-500 text-gray-900">$2038.00 USD</span>
+                    <span className="text-body-small-500 text-gray-900">${totalPrice} USD</span>
                   </div>
 
                   <button className="w-full h-12 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">
@@ -94,7 +89,7 @@ export default function Header() {
                   </button>
 
                   <button className="w-full h-12 flex items-center justify-center gap-2 mt-6 border-2 border-primary-100 rounded-xs">
-                    <span className="text-heading-7 text-primary-500">CHECKOUT NOW</span>
+                    <span className="text-heading-7 text-primary-500 uppercase">View Cart</span>
                   </button>
                 </div>
               </div>
