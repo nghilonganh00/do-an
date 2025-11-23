@@ -1,20 +1,47 @@
 "use client";
 
+import Stepper from "@/src/components/common/Stepper";
 import { ChevronUp, CreditCard, Heart, Star } from "@/src/components/icons";
 import { Handshake } from "@/src/components/icons/Handshake";
 import { Headphones } from "@/src/components/icons/Headphones";
 import { Medal } from "@/src/components/icons/Medal";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
+import { useGetCouponByCode } from "@/src/features/coupon/hooks/useGetCouponByCode";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
+import { useAddToCart } from "@/src/features/shoppingCart/hooks/useAddToCart";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+
+interface ShoppingCartItemState {
+  productId: number;
+  quantity: number;
+  couponId: number | null;
+}
 
 export default function ProductDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
 
+  const [shoppingCardItem, setShoppingCardItem] = useState<ShoppingCartItemState>({
+    productId: Number(id),
+    quantity: 1,
+    couponId: null,
+  });
+
   const { data: product } = useGetProductById(id);
+  const { mutate: addToCart } = useAddToCart();
+
+  const handleAddToCart = useCallback(() => {
+    if (!shoppingCardItem) return;
+
+    addToCart(shoppingCardItem, {
+      onSuccess: () => {
+        router.push("/shopping-card");
+      },
+    });
+  }, [shoppingCardItem]);
 
   return (
     <div className="w-full">
@@ -61,14 +88,14 @@ export default function ProductDetailPage() {
                   <span>Sku: A262461</span>
                 </div>
                 <div className="flex-1">
-                  <span>Category: Electronics Devices</span>
+                  <span>Category: {product?.category?.name || ""}</span>
                 </div>
               </div>
             </div>
 
             <div className="flex mt-6 items-center">
               <span className="text-heading-3 text-secondary-500">${product?.price || 0}</span>
-              <span className="text-lg text-gray-500 ml-1">${product?.originalPrice || 0}</span>
+              <span className="text-lg text-gray-500 ml-1 line-through">${product?.originalPrice || 0}</span>
               <div className="ml-3 bg-warning-400 px-[10] py-[5]">
                 <span className="text-body-small-600">
                   {Math.round(
@@ -113,14 +140,26 @@ export default function ProductDetailPage() {
               </div>
 
               <div className="col-span-12 grid grid-cols-12 gap-4 h-[56]">
-                <div className="col-span-3 flex justify-between px-5 py-4 border border-gray-100 rounded-xs h-full">
+                {/* <div className="col-span-3 flex justify-between px-5 py-4 border border-gray-100 rounded-xs h-full">
                   <span>-</span>
                   <span>01</span>
                   <span>+</span>
-                </div>
+                </div> */}
+
+                <Stepper
+                  value={shoppingCardItem.quantity}
+                  onChange={(quantity) =>
+                    setShoppingCardItem((prev) => ({
+                      ...prev,
+                      quantity,
+                    }))
+                  }
+                  className="col-span-3"
+                />
+
                 <button
                   className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3"
-                  onClick={() => router.push("/shopping-card")}
+                  onClick={handleAddToCart}
                 >
                   <span className="text-heading-3 text-gray">ADD TO CARD</span>
                   <ShoppingCartSimple />

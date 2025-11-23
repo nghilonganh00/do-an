@@ -1,15 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import { Heart, Search, ShoppingCart, User } from "../icons";
 import { X } from "../icons/X";
 import { ArrowRight } from "../icons/ArrowRight";
 import { useCallback, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useGetMyShoppingCart } from "@/src/features/shoppingCart/hooks/useGetMyShoppingCart";
 
 export default function Header() {
   const pathname = usePathname();
+  const router = useRouter();
+
   const [isShopCartVisible, setShopCartVisible] = useState(false);
   const { data: shoppingCartItems } = useGetMyShoppingCart();
   const totalPrice = useMemo(() => {
@@ -20,6 +21,11 @@ export default function Header() {
 
   const handleToggleShopCart = useCallback(() => {
     setShopCartVisible((prev) => !prev);
+  }, []);
+
+  const handleNavigateToCart = useCallback(() => {
+    router.push("/shopping-cart");
+    handleToggleShopCart();
   }, []);
 
   if (pathname.startsWith("/admin")) {
@@ -88,7 +94,10 @@ export default function Header() {
                     <ArrowRight />
                   </button>
 
-                  <button className="w-full h-12 flex items-center justify-center gap-2 mt-6 border-2 border-primary-100 rounded-xs">
+                  <button
+                    onClick={handleNavigateToCart}
+                    className="w-full h-12 flex items-center justify-center gap-2 mt-6 border-2 border-primary-100 rounded-xs"
+                  >
                     <span className="text-heading-7 text-primary-500 uppercase">View Cart</span>
                   </button>
                 </div>

@@ -2,6 +2,9 @@ import { X } from "@/src/components/icons/X";
 import Image from "next/image";
 
 export default function OrderDetail() {
+  
+
+
   return (
     <div className="">
       <div className="p-6 bg-warning-50 flex items-center justify-between">

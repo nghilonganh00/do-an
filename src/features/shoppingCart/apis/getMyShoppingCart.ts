@@ -2,7 +2,7 @@ import { supabase } from "@/src/lib/supabaseClient";
 import { ShoppingCartItem } from "@/src/types/shoppingCart";
 import { Product } from "@/src/types/product";
 
-export const getMyShoppingCart = async (): Promise<(ShoppingCartItem & { product: Product })[]> => {
+export const getMyShoppingCart = async (): Promise<ShoppingCartItem[]> => {
   const { data, error } = await supabase.from("shopping_cart_items").select(`
       *,
       product:products(*)

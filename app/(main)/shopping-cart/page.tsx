@@ -4,6 +4,7 @@ import { Line } from "@/src/components/common/Line";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
 import { X } from "@/src/components/icons/X";
 import Header from "@/src/components/layout/Header";
+import { useGetMe } from "@/src/features/user/hooks/useGetMe";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
