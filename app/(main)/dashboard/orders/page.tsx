@@ -1,42 +1,14 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-
-const data = [
-  {
-    product: "#96459761",
-    status: "IN PROGRESS",
-    date: "Dec 30, 2019 07:52",
-    total: "$80 (5 Products)",
-  },
-  {
-    product: "#96459761",
-    status: "COMPLETED",
-    date: "Dec 7, 2019 23:26",
-    total: "$70 (4 Products)",
-  },
-  {
-    product: "#96459761",
-    status: "IN PROGRESS",
-    date: "Dec 30, 2019 07:52",
-    total: "$80 (5 Products)",
-  },
-  {
-    product: "#96459761",
-    status: "IN PROGRESS",
-    date: "Dec 30, 2019 07:52",
-    total: "$80 (5 Products)",
-  },
-  {
-    product: "#96459761",
-    status: "IN PROGRESS",
-    date: "Dec 30, 2019 07:52",
-    total: "$80 (5 Products)",
-  },
-];
+import { useGetMyOrderHistory } from "@/src/features/order/hooks/useGetMyOrderHistory";
+import { useParams, useRouter } from "next/navigation";
+import dayjs from "dayjs";
+import { ORDER_STATUS } from "@/src/constants";
 
 export default function OrderHistory() {
   const router = useRouter();
+
+  const { data: orders } = useGetMyOrderHistory();
 
   return (
     <div className="border flex-1 border-gray-100">
@@ -52,19 +24,23 @@ export default function OrderHistory() {
           </tr>
         </thead>
         <tbody>
-          {data.map((item, index) => {
+          {orders?.map((item, index) => {
             return (
-              <tr key={index} className="border-t border-gray-200">
-                <td className="px-6 py-4">{item.product}</td>
+              <tr
+                onClick={() => router.push(`/dashboard/orders/${item.id}`)}
+                key={index}
+                className="border-t border-gray-200"
+              >
+                <td className="px-6 py-4">{item?.id}</td>
                 <td
                   className={`px-6 py-4 text-right ${
-                    item.status === "IN PROGRESS" ? "text-primary-500" : "text-success-500"
+                    item?.status === ORDER_STATUS.COMPLETED ? "text-success-500" : "text-primary-500"
                   }`}
                 >
-                  {item.status}
+                  {item?.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : ""}
                 </td>
-                <td className="px-6 py-4 text-right">{item.date}</td>
-                <td className="px-6 py-4 text-right">{item.total}</td>
+                <td className="px-6 py-4 text-right">{dayjs(item?.createdAt).format("MMM DD, YYYY hh:mm A")}</td>
+                <td className="px-6 py-4 text-right">{item?.totalAmount}</td>
                 <td className="px-6 py-4 text-right">
                   <button className="text-secondary-500" onClick={() => router.push("/dashboard/order-detail")}>
                     View Details

@@ -59,6 +59,7 @@ export default function CheckoutPage() {
         email: billing.email,
         phone: billing.phone,
         couponCode: order.coupon?.code ?? "",
+        discount: order.discount,
         total: order.total,
       });
       setPlacedOrder(true);

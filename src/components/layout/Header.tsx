@@ -107,7 +107,7 @@ export default function Header() {
           <button>
             <Heart width={32} height={32} className="w-6 h-6 cursor-pointer hover:text-gray-200" />
           </button>
-          <button>
+          <button onClick={() => router.push("/dashboard")}>
             <User className="w-6 h-6 cursor-pointer hover:text-gray-200" />
           </button>
         </div>

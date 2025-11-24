@@ -2,37 +2,19 @@
 
 import Dropdown from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
+import { useGetAllProducts } from "@/src/features/products/hooks/useGetAllProducts";
+import { Params } from "@/src/types";
 import { useRouter } from "next/navigation";
-
-const products = [
-  {
-    id: 1,
-    name: "iPhone 15 Pro",
-    inventory: 32,
-    color: "Black Titanium",
-    price: 999,
-    rating: 4.8,
-  },
-  {
-    id: 2,
-    name: "Samsung Galaxy S24",
-    inventory: 12,
-    color: "Silver",
-    price: 899,
-    rating: 4.5,
-  },
-  {
-    id: 3,
-    name: "Google Pixel 9",
-    inventory: 8,
-    color: "Obsidian",
-    price: 799,
-    rating: 4.6,
-  },
-];
 
 const ProductManagementPage = () => {
   const router = useRouter();
+
+  const { data: data } = useGetAllProducts({
+    page: 1,
+    limit: 10,
+    sortBy: "created_at",
+    sortDir: "desc",
+  } as Params);
 
   return (
     <div className="px-10 py-6 ">
@@ -71,15 +53,17 @@ const ProductManagementPage = () => {
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
-            {products.map((product) => (
+            {data?.data?.map((product) => (
               <tr key={product.id} className="hover:bg-gray-50 transition">
                 <td className="px-6 py-4 text-sm text-gray-800">{product.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{product.inventory}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{product.color}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">{product?.inventory || 0}</td>
+                <td className="px-6 py-4 text-sm text-gray-600">{"blue"}</td>
 
-                <td className="px-6 py-4 text-right text-sm text-gray-700">${product.price.toLocaleString()}</td>
+                <td className="px-6 py-4 text-right text-sm text-gray-700">${product?.price || 0}</td>
 
-                <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">{product.rating} (32 Votes)</td>
+                <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">
+                  {product?.stars || 0} (32 Votes)
+                </td>
               </tr>
             ))}
           </tbody>

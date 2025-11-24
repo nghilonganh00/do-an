@@ -18,8 +18,10 @@ export const useCreateOrder = () => {
       email: string;
       phone: string;
       couponCode: string;
+      discount: number;
       total: number;
     }) => {
+      console.log("total: ", payload.total);
       return await createOrder(
         payload.items,
         payload.name,
@@ -32,6 +34,7 @@ export const useCreateOrder = () => {
         payload.email,
         payload.phone,
         payload.couponCode,
+        payload.discount,
         payload.total
       );
     },

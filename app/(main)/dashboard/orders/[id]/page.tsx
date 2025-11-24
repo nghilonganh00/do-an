@@ -1,9 +1,14 @@
+"use client";
 import { X } from "@/src/components/icons/X";
+import { useGetOrderById } from "@/src/features/order/hooks/userGetOrderById";
 import Image from "next/image";
+import { useParams } from "next/navigation";
+import dayjs from "dayjs";
 
 export default function OrderDetail() {
-  
+  const { id } = useParams<{ id: string }>();
 
+  const { data: order } = useGetOrderById(id!);
 
   return (
     <div className="">
@@ -11,16 +16,16 @@ export default function OrderDetail() {
         <div>
           <span className="text-body-xl-400">#96459761</span>
           <div className="text-body-small-400 text-gray-400">
-            <span>4 Products</span>
+            <span>{order?.orderItems?.length || 0} Products</span>
             <span> • </span>
-            <span>Order Placed in 17 Jan, 2021 at 7:32 PM</span>
+            <span>Order Placed in {dayjs(order?.createdAt).format("DD MMM, YYYY [at] hh:mm A")}</span>
           </div>
         </div>
 
-        <span className="text-heading-2 text-secondary-500">$1199.00</span>
+        <span className="text-heading-2 text-secondary-500">${order?.totalAmount || 0}</span>
       </div>
       <div className="px-6 py-5 w-full border border-gray-100">
-        <h4 className="text-body-large-500">Product (2)</h4>
+        <h4 className="text-body-large-500">Product {order?.orderItems?.length || 0}</h4>
 
         <table className="w-full border border-gray-200 rounded-md overflow-hidden mt-5">
           <thead className="bg-gray-100">
@@ -32,41 +37,22 @@ export default function OrderDetail() {
             </tr>
           </thead>
           <tbody>
-            <tr className="border-t border-gray-200">
-              <td className="px-4 py-2 flex items-center gap-3">
-                <X />
-                <Image src={"/assets/images/smart-tv.png"} alt="Smart tv" width={72} height={72} />
-                <span>4K UHD LED Smart TV with Chromecast Built-in</span>
-              </td>
-              <td className="px-4 py-2 text-right">$70</td>
-              <td className="px-4 py-2 text-right w-12">
-                <div className="flex w-[148px] justify-between px-5 py-4 border border-gray-100 rounded-xs h-full">
-                  <span>-</span>
-                  <span>01</span>
-                  <span>+</span>
-                </div>
-              </td>
-              <td className="px-4 py-2 text-right">$70</td>
-            </tr>
-            <tr className="border-t border-gray-200">
-              <td className="px-4 py-2 flex items-center gap-3">
-                <X />
-                <Image src={"/assets/images/smart-tv.png"} alt="Smart tv" width={72} height={72} />
-                <div className="flex flex-col">
-                  <span className="text-body-tiny-600 text-secondary-500">SMARTPHONE</span>
-                  <span>4K UHD LED Smart TV with Chromecast Built-in</span>
-                </div>
-              </td>
-              <td className="px-4 py-2 text-right">$70</td>
-              <td className="px-4 py-2 text-right w-12">
-                <div className="flex w-[148px] justify-between px-5 py-4 border border-gray-100 rounded-xs h-full">
-                  <span>-</span>
-                  <span>01</span>
-                  <span>+</span>
-                </div>
-              </td>
-              <td className="px-4 py-2 text-right">$70</td>
-            </tr>
+            {order?.orderItems?.map((item) => {
+              return (
+                <tr className="border-t border-gray-200">
+                  <td className="px-4 py-2 flex items-center gap-3">
+                    <X />
+                    <Image src={"/assets/images/smart-tv.png"} alt="Smart tv" width={72} height={72} />
+                    <span>{item?.product?.name || ""}</span>
+                  </td>
+                  <td className="px-4 py-2 text-right">${item?.product?.price || 0}</td>
+                  <td className="px-4 py-2 text-right w-12">
+                    <span>{item?.quantity || 0}</span>
+                  </td>
+                  <td className="px-4 py-2 text-right">${(item?.quantity || 0) * (item?.product?.price || 0)}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -89,7 +75,7 @@ export default function OrderDetail() {
         </div>
 
         <div className="px-6 py-8 border border-gray-100">
-          <h3 className="text-body-large-500">Shipping Address</h3>
+          <h3 className="text-body-large-500">{order?.shipment?.id}</h3>
           <div className="mt-6">
             <span className="text-body-small-500">Kevin Gilbert</span>
             <p className="text-body-small-400 text-gray-600">

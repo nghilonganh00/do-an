@@ -1,7 +1,21 @@
+"use client";
+
 import Dropdown from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
+import { useGetOrdersQuery } from "@/src/features/order/hooks/useGetAllOrders";
+import { Params } from "@/src/types";
+import dayjs from "dayjs";
 
 const OrderManagementPage = () => {
+  const { data, isPending, error } = useGetOrdersQuery({
+    page: 1,
+    limit: 10,
+    sortBy: "created_at",
+    sortDir: "desc",
+  } as Params);
+
+  console.log("Orders data: ", data);
+
   return (
     <div className="px-10 py-6 ">
       <span className="text-body-xl-600">Orders</span>
@@ -35,31 +49,26 @@ const OrderManagementPage = () => {
           </thead>
 
           <tbody className="divide-y divide-gray-200 bg-white">
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 text-sm text-gray-800">#1001</td>
-              <td className="px-6 py-4 text-sm text-gray-600">2025-11-14</td>
-              <td className="px-6 py-4 text-sm text-gray-600">Thiện</td>
-              <td className="px-6 py-4 text-right text-sm">
-                <span className="text-green-600 font-medium">Paid</span>
-              </td>
-              <td className="px-6 py-4 text-right text-sm">
-                <span className="text-blue-600 font-medium">Completed</span>
-              </td>
-              <td className="px-6 py-4 text-right text-sm text-gray-800">$120.00</td>
-            </tr>
-
-            <tr className="hover:bg-gray-50 transition">
-              <td className="px-6 py-4 text-sm text-gray-800">#1002</td>
-              <td className="px-6 py-4 text-sm text-gray-600">2025-11-13</td>
-              <td className="px-6 py-4 text-sm text-gray-600">John Doe</td>
-              <td className="px-6 py-4 text-right text-sm">
-                <span className="text-yellow-600 font-medium">Pending</span>
-              </td>
-              <td className="px-6 py-4 text-right text-sm">
-                <span className="text-gray-600 font-medium">Processing</span>
-              </td>
-              <td className="px-6 py-4 text-right text-sm text-gray-800">$89.50</td>
-            </tr>
+            {data?.data?.map((order) => {
+              return (
+                <tr className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-800">#{order.id}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {dayjs(order.createdAt).format("HH:MM, YYYY-MM-DD")}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{order?.user?.name || ""}</td>
+                  <td className="px-6 py-4 text-right text-sm flex items-center justify-center">
+                    <span className="text-green-600 font-medium">
+                      {order?.payments?.[order?.payments.length - 1]?.status}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right text-sm">
+                    <span className="text-blue-600 font-medium">{order?.status}</span>
+                  </td>
+                  <td className="px-6 py-4 text-right text-sm text-gray-800">${order?.totalAmount || 0}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

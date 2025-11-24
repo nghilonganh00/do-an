@@ -10,6 +10,7 @@ export type Product = {
   id?: number;
   name?: string;
   image?: string;
+  inventory?: number;
   stars?: number;
   price?: number;
   originalPrice?: number;

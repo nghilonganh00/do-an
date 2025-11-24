@@ -14,6 +14,7 @@ export const createOrder = async (
   email: string,
   phone: string,
   couponCode: string,
+  discount: number,
   total: number
 ): Promise<(ShoppingCartItem & { product: Product }) | null> => {
   try {
@@ -38,11 +39,14 @@ export const createOrder = async (
       return null;
     }
 
+    console.log("totalAmount:", total);
+
     const { data: newOrder, error: newOrderError } = await supabase
       .from("orders")
       .insert({
         shipmentId: newShipment.id,
         userId: 1,
+        total: total,
       })
       .select("*")
       .single();
@@ -81,9 +85,10 @@ export const createOrder = async (
       }
 
       if (coupon) {
-        const { error: orderCouponError } = await supabase.from("order_coupons").insert({
+        const { error: orderCouponError } = await supabase.from("orderCoupons").insert({
           orderId: newOrder.id,
           couponId: coupon.id,
+          discountAmount: discount,
         });
 
         if (orderCouponError) {
@@ -93,14 +98,12 @@ export const createOrder = async (
       }
     }
 
-    const { data: payment, error: paymentError } = await supabase.from("payments").insert(
-      items.map((item) => ({
-        orderId: newOrder.id,
-        amount: total,
-        method: "COD",
-        status: "pending",
-      }))
-    );
+    const { data: payment, error: paymentError } = await supabase.from("payments").insert({
+      orderId: newOrder.id,
+      amount: total,
+      method: "COD",
+      status: "pending",
+    });
 
     if (paymentError) {
       console.error("Payment insert error:", paymentError);

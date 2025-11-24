@@ -9,7 +9,7 @@ type useGetMeOptions = {
 
 export const useGetMe = ({ queryConfig }: useGetMeOptions = {}) => {
   return useQuery({
-    queryKey: ["me"] as const,
+    queryKey: ["get-me"] as const,
     queryFn: () => getMe(),
     ...queryConfig,
   });
