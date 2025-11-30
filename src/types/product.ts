@@ -11,9 +11,11 @@ export type Product = {
   name?: string;
   images?: string[];
   stars?: number;
+  description?: string;
   category_id?: number;
   category?: Category;
   variants?: ProductVariant[];
+  options?: ProductOption[];
 };
 
 export interface ProductVariant {
@@ -40,6 +42,7 @@ export interface ProductOption {
   id: number;
   productId?: number;
   name?: string;
+  optionValues?: ProductOptionValue[];
 }
 
 export interface ProductOptionValue {

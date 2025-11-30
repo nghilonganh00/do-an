@@ -1,9 +1,9 @@
-import { Product } from "./product";
+import { ProductVariant } from "./product";
 
 export type ShoppingCartItem = {
   id: number;
   user_id?: number;
-  productId?: number;
+  productVariantId?: number;
   quantity?: number;
-  product?: Product;
+  variant?: ProductVariant;
 };

@@ -21,7 +21,6 @@ export const useCreateOrder = () => {
       discount: number;
       total: number;
     }) => {
-      console.log("total: ", payload.total);
       return await createOrder(
         payload.items,
         payload.name,

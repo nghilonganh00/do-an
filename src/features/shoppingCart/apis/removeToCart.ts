@@ -4,7 +4,7 @@ import { Product } from "@/src/types/product";
 
 export const removeFromCart = async (cartItemId: number): Promise<any> => {
   const { data, error } = await supabase
-    .from("shopping_cart_items")
+    .from("shoppingCartItems")
     .delete()
     .eq("id", cartItemId)
     .select(

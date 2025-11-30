@@ -1,11 +1,20 @@
 import { BaseEntity } from ".";
-import { ORDER_STATUS, PAYMENT_STATUS } from "../constants";
-import { Product } from "./product";
+import { PAYMENT_STATUS } from "../constants";
+import { ProductVariant } from "./product";
 import { User } from "./users";
 
-export type Shipment = {
+export interface Shipment extends BaseEntity {
   id: number;
-};
+  fullName?: string;
+  companyName?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  country?: string;
+  phone?: string;
+  email?: string;
+}
 
 export interface Payment extends BaseEntity {
   id: number;
@@ -23,14 +32,15 @@ export type orderCoupon = {
 
 export type OrderItem = {
   id: number;
-  productId?: number;
+  productVariantId?: number;
   quantity?: number;
-  product?: Product;
+  productVariant?: ProductVariant;
 };
 export interface Order extends BaseEntity {
   id: number;
   status?: string;
   totalAmount?: number;
+  discount?: number;
   shipmentId?: number;
   paymentId?: number;
   shipment?: Shipment;

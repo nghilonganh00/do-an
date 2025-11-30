@@ -3,8 +3,6 @@
 import { Line } from "@/src/components/common/Line";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
 import { X } from "@/src/components/icons/X";
-import Header from "@/src/components/layout/Header";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
 import { useGetMyShoppingCart } from "@/src/features/shoppingCart/hooks/useGetMyShoppingCart";
@@ -14,6 +12,9 @@ import { useGetCouponByCode } from "@/src/features/coupon/hooks/useGetCouponByCo
 import { Coupon } from "@/src/types/coupon";
 import { DISCOUNT_TYPE } from "@/src/constants";
 import Stepper from "@/src/components/common/Stepper";
+import { ShoppingCartItem } from "@/src/types/shoppingCart";
+import Image from "next/image";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 
 export default function ShoppingCart() {
   const router = useRouter();
@@ -35,31 +36,40 @@ export default function ShoppingCart() {
   );
 
   const onChangeQuantity = (itemId: number, newQuantity: number) => {
-    queryClient.setQueryData(["shopping-cart"], (oldData: any) => {
-      return oldData.map((item: any) => (item.id === itemId ? { ...item, quantity: newQuantity } : item));
-    });
+    queryClient.setQueryData(
+      ["shopping-cart"],
+      (oldData: ShoppingCartItem[]) => {
+        return oldData.map((item: ShoppingCartItem) =>
+          item.id === itemId ? { ...item, quantity: newQuantity } : item
+        );
+      }
+    );
   };
 
   const handleApplyCoupon = useCallback(async () => {
     if (!couponCode) {
-      setCouponMessage("Please enter a coupon code");
+      setCouponMessage("Vui lòng nhập mã giảm giá");
       setCoupon(null);
       return;
     }
 
     const { data } = await fetchCoupon();
     if (!data || !data.id) {
-      setCouponMessage("Invalid or expired coupon");
+      setCouponMessage("Mã giảm giá không hợp lệ hoặc đã hết hạn");
       setCoupon(null);
       return;
     }
 
     setCoupon(data);
-    setCouponMessage(`Coupon applied: ${data.description}`);
+    setCouponMessage(`Đã áp dụng mã giảm giá: ${data.description}`);
   }, [couponCode, fetchCoupon]);
 
   const subTotal =
-    shoppingCartItems?.reduce((total, item) => total + (item.product?.price || 0) * (item.quantity || 0), 0) || 0;
+    shoppingCartItems?.reduce(
+      (total, item) =>
+        total + (item.variant?.price || 0) * (item.quantity || 0),
+      0
+    ) || 0;
 
   const discount = coupon
     ? coupon.discountType === DISCOUNT_TYPE.PERCENT
@@ -85,22 +95,31 @@ export default function ShoppingCart() {
       })
     );
     router.push("check-out");
-  }, [shoppingCartItems, coupon, subTotal, discount, shipping, tax, total, router]);
+  }, [
+    shoppingCartItems,
+    coupon,
+    subTotal,
+    discount,
+    shipping,
+    tax,
+    total,
+    router,
+  ]);
 
   return (
     <div className="w-full">
       <div className="max-w-[1320px] grid grid-cols-12 mt-[72px]">
         <div className="col-span-8">
           <div className="px-6 py-5 w-full">
-            <h4 className="text-body-large-500">Shopping Cart</h4>
+            <h4 className="text-body-large-500">Giỏ hàng</h4>
 
             <table className="w-full border border-gray-200 rounded-md overflow-hidden mt-5">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="px-4 py-2 text-left">Product</th>
-                  <th className="px-4 py-2 text-right">Price</th>
-                  <th className="px-4 py-2 text-right">Quantity</th>
-                  <th className="px-4 py-2 text-right">Sub Total</th>
+                  <th className="px-4 py-2 text-left">Sản phẩm</th>
+                  <th className="px-4 py-2 text-right">Giá</th>
+                  <th className="px-4 py-2 text-right">Số lượng</th>
+                  <th className="px-4 py-2 text-right">Thành tiền</th>
                 </tr>
               </thead>
               <tbody>
@@ -110,23 +129,42 @@ export default function ShoppingCart() {
                       <button onClick={() => handleRemoveItem(item.id)}>
                         <X />
                       </button>
-                      <img
-                        src={item.product?.image || "/assets/images/smart-tv.png"}
-                        alt={item.product?.name || ""}
+                      <Image
+                        src={item.variant?.thumbnail || ""}
+                        alt={item.variant?.product?.name || ""}
                         width={72}
                         height={72}
                       />
-                      <span>{item.product?.name || ""}</span>
+                      <span className="text-body-small-400">
+                        {item.variant?.product?.name || ""}
+                      </span>
+                      <span className="text-body-small-400">
+                        (
+                        {item.variant?.variantValues
+                          ?.map(
+                            (variantValue) => variantValue.optionValue?.value
+                          )
+                          .join(", ") || ""}
+                        )
+                      </span>
                     </td>
-                    <td className="px-4 py-2 text-right">${item.product?.price || 0}</td>
+                    <td className="px-4 py-2 text-right">
+                      {formatPriceVN(item.variant?.price || 0)}
+                    </td>
                     <td className="px-4 py-2 text-right w-12">
                       <Stepper
                         value={item?.quantity || 1}
-                        onChange={(quantity) => onChangeQuantity(item.id, quantity)}
+                        onChange={(quantity) =>
+                          onChangeQuantity(item.id, quantity)
+                        }
                         className="w-[148px]"
                       />
                     </td>
-                    <td className="px-4 py-2 text-right">${(item.product?.price || 0) * (item.quantity || 0)}</td>
+                    <td className="px-4 py-2 text-right">
+                      {formatPriceVN(
+                        (item.variant?.price || 0) * (item.quantity || 0)
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -136,52 +174,78 @@ export default function ShoppingCart() {
 
         <div className="col-span-4">
           <div className="px-6 py-5 rounded-sm border border-gray-100">
-            <span className="text-body-large-500">Cart Totals</span>
+            <span className="text-body-large-500">Tổng quan giỏ hàng</span>
+
             <div className="flex justify-between items-center mt-5">
-              <span className="text-body-small-400 text-gray-600">Sub-total</span>
-              <span className="text-body-small-500">${subTotal}</span>
+              <span className="text-body-small-400 text-gray-600">
+                Tạm tính
+              </span>
+              <span className="text-body-small-500">
+                {formatPriceVN(subTotal)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">Shipping</span>
-              <span className="text-body-small-500">{shipping === 0 ? "Free" : `$${shipping}`}</span>
+              <span className="text-body-small-400 text-gray-600">
+                Phí vận chuyển
+              </span>
+              <span className="text-body-small-500">
+                {shipping === 0 ? "Miễn phí" : formatPriceVN(shipping)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">Discount</span>
-              <span className="text-body-small-500">-${discount.toFixed(2)}</span>
+              <span className="text-body-small-400 text-gray-600">
+                Giảm giá
+              </span>
+              <span className="text-body-small-500">
+                -{formatPriceVN(discount)}
+              </span>
             </div>
+
             <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">Tax</span>
-              <span className="text-body-small-500">${tax}</span>
+              <span className="text-body-small-400 text-gray-600">Thuế</span>
+              <span className="text-body-small-500">{formatPriceVN(tax)}</span>
             </div>
+
             <div className="flex justify-between items-center mt-8">
-              <span className="text-body-medium-400 text-gray-600">Total</span>
-              <span className="text-body-small-600">${total} USD</span>
+              <span className="text-body-medium-400 text-gray-600">
+                Tổng cộng
+              </span>
+              <span className="text-body-small-600">
+                {formatPriceVN(total)}
+              </span>
             </div>
 
             <button
               className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
               onClick={handleProceedToCheckout}
             >
-              <span className="text-heading-7 text-gray">Proceed to Checkout</span>
+              <span className="text-heading-7 text-gray">
+                Tiến hành thanh toán
+              </span>
               <ArrowRight />
             </button>
           </div>
 
           <div className="px-6 py-5 rounded-sm border border-gray-100 mt-4">
-            <span className="text-body-large-500">Coupon Code</span>
+            <span className="text-body-large-500">Mã giảm giá</span>
             <Line my={3} />
+
             <input
               value={couponCode}
               onChange={(e) => setCouponCode(e.target.value)}
               className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2"
-              placeholder="Enter coupon code"
+              placeholder="Nhập mã giảm giá"
             />
+
             {couponMessage && <p className="text-sm mt-2">{couponMessage}</p>}
+
             <button
               onClick={handleApplyCoupon}
-              className="w-56 h-14 flex items-center justify-center gap-2 mt-6 bg-secondary-500 rounded-xs"
+              className="w-56 h-14 flex items-center justify-center mt-6 bg-secondary-500 rounded-xs"
             >
-              <span className="text-heading-7 text-gray">Apply Coupon</span>
+              <span className="text-heading-7 text-gray">Áp dụng mã</span>
             </button>
           </div>
         </div>

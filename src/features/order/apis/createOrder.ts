@@ -39,14 +39,12 @@ export const createOrder = async (
       return null;
     }
 
-    console.log("totalAmount:", total);
-
     const { data: newOrder, error: newOrderError } = await supabase
       .from("orders")
       .insert({
         shipmentId: newShipment.id,
-        userId: 1,
-        total: total,
+        userId: 2,
+        totalAmount: total,
       })
       .select("*")
       .single();
@@ -56,15 +54,17 @@ export const createOrder = async (
       return null;
     }
 
-    const { data: orderItems, error: orderItemsError } = await supabase.from("orderItems").insert(
-      items.map((item) => ({
-        orderId: newOrder.id,
-        productId: item.productId,
-        quantity: item.quantity,
-      }))
-    ).select(`
+    const { data: orderItems, error: orderItemsError } = await supabase
+      .from("orderItems")
+      .insert(
+        items.map((item) => ({
+          orderId: newOrder.id,
+          productVariantId: item.productVariantId,
+          quantity: item.quantity,
+        }))
+      ).select(`
     *,
-    product:products(*)
+    variants:productVariants(*)
   `);
 
     if (orderItemsError) {
@@ -85,11 +85,13 @@ export const createOrder = async (
       }
 
       if (coupon) {
-        const { error: orderCouponError } = await supabase.from("orderCoupons").insert({
-          orderId: newOrder.id,
-          couponId: coupon.id,
-          discountAmount: discount,
-        });
+        const { error: orderCouponError } = await supabase
+          .from("orderCoupons")
+          .insert({
+            orderId: newOrder.id,
+            couponId: coupon.id,
+            discountAmount: discount,
+          });
 
         if (orderCouponError) {
           console.error("Order coupon error:", orderCouponError);
@@ -98,12 +100,14 @@ export const createOrder = async (
       }
     }
 
-    const { data: payment, error: paymentError } = await supabase.from("payments").insert({
-      orderId: newOrder.id,
-      amount: total,
-      method: "COD",
-      status: "pending",
-    });
+    const { data: payment, error: paymentError } = await supabase
+      .from("payments")
+      .insert({
+        orderId: newOrder.id,
+        amount: total,
+        method: "COD",
+        status: "pending",
+      });
 
     if (paymentError) {
       console.error("Payment insert error:", paymentError);

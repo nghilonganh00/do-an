@@ -8,7 +8,13 @@ type Props = {
   className?: string;
 };
 
-export default function Stepper({ value, onChange, min = 1, max = 999, className }: Props) {
+export default function Stepper({
+  value,
+  onChange,
+  min = 1,
+  max = 999,
+  className,
+}: Props) {
   const decrease = () => value > min && onChange(value - 1);
   const increase = () => value < max && onChange(value + 1);
 

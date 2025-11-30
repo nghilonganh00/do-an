@@ -1,24 +1,17 @@
 import { supabase } from "@/src/lib/supabaseClient";
 import { ShoppingCartItem } from "@/src/types/shoppingCart";
-import { Product } from "@/src/types/product";
 
 export const addToCart = async (
-  productId: number,
+  productVariantId: number,
   quantity: number = 1
-): Promise<(ShoppingCartItem & { product: Product }) | null> => {
+): Promise<ShoppingCartItem | null> => {
   const { data, error } = await supabase
-    .from("shopping_cart_items")
+    .from("shoppingCartItems")
     .insert({
-      productId: productId,
+      productVariantId: productVariantId,
       quantity,
-      userId: 1,
+      userId: 2,
     })
-    .select(
-      `
-      *,
-      product:products(*)
-    `
-    )
     .single();
 
   if (error) {

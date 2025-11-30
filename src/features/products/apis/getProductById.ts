@@ -14,8 +14,9 @@ export const getProductById = async (id: string): Promise<Product | null> => {
           *, 
           optionValue:productOptionValues(*, option:productOptions(*))
         )
-      )
-    `
+      ),
+      options:productOptions(*, optionValues:productOptionValues(*, option:productOptions(*)))
+      `
     )
     .eq("id", id)
     .single();

@@ -1,17 +1,30 @@
 import { supabase } from "@/src/lib/supabaseClient";
+import { ProductVariantValue } from "@/src/types/product";
 import { ShoppingCartItem } from "@/src/types/shoppingCart";
-import { Product } from "@/src/types/product";
 
 export const getMyShoppingCart = async (): Promise<ShoppingCartItem[]> => {
-  const { data, error } = await supabase.from("shopping_cart_items").select(`
+  const { data, error } = await supabase.from("shoppingCartItems").select(`
       *,
-      product:products(*)
+      variant:productVariants(*, product:products(*), variantValues:productVariantValues(*, optionValue:productOptionValues(*)))
     `);
+
+  const cleanedData = data?.map((item) => ({
+    ...item,
+    variant: {
+      ...item.variant,
+      variantValues: item.variant.variantValues?.map(
+        (variantValue: ProductVariantValue) => ({
+          ...variantValue,
+          optionValue: variantValue.optionValue,
+        })
+      ),
+    },
+  }));
 
   if (error) {
     console.error("Failed to fetch shopping cart:", error);
     return [];
   }
 
-  return data ?? [];
+  return cleanedData ?? [];
 };

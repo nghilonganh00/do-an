@@ -9,7 +9,7 @@ export const getMyOrderHistory = async (): Promise<Order[] | null> => {
       *
     `
     )
-    .eq("userId", 1);
+    .eq("userId", 2);
 
   if (error) {
     console.error("Failed to fetch my order history:", error);

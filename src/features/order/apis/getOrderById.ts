@@ -7,8 +7,8 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
     .select(
       `
       *,
-      shipments:shipmentId (*),
-      orderItems (*, product:productId (*)),
+      shipment:shipmentId (*),
+      orderItems (*, productVariant:productVariantId (*, product:productId (*))),
       orderCoupons (*),
       payments (*)
     `

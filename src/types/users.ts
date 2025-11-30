@@ -12,4 +12,9 @@ export type User = {
   city?: string;
   zipCode?: string;
   token: string;
+  orderSummary?: {
+    totalOrders: number;
+    pendingOrders?: number;
+    completedOrders?: number;
+  };
 };
