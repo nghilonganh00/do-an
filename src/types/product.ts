@@ -9,11 +9,42 @@ export type Category = {
 export type Product = {
   id?: number;
   name?: string;
-  image?: string;
-  inventory?: number;
+  images?: string[];
   stars?: number;
-  price?: number;
-  originalPrice?: number;
   category_id?: number;
   category?: Category;
+  variants?: ProductVariant[];
 };
+
+export interface ProductVariant {
+  id: number;
+  productId?: number;
+  sku?: string;
+  price?: number;
+  originalPrice?: number;
+  stock?: number;
+  thumbnail?: string;
+  product?: Product;
+  variantValues?: ProductVariantValue[];
+}
+
+export interface ProductVariantValue {
+  id: number;
+  variantId?: number;
+  optionValueId?: number;
+  variant?: ProductVariant;
+  optionValue?: ProductOptionValue;
+}
+
+export interface ProductOption {
+  id: number;
+  productId?: number;
+  name?: string;
+}
+
+export interface ProductOptionValue {
+  id: number;
+  optionId?: number;
+  value?: string;
+  option?: ProductOption;
+}

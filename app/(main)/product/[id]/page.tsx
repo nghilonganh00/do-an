@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "@/src/components/common/input/Dropdown";
 import Stepper from "@/src/components/common/Stepper";
 import { ChevronUp, CreditCard, Heart, Star } from "@/src/components/icons";
 import { Handshake } from "@/src/components/icons/Handshake";
@@ -10,14 +11,16 @@ import { Truck } from "@/src/components/icons/Truck";
 import { useGetCouponByCode } from "@/src/features/coupon/hooks/useGetCouponByCode";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
 import { useAddToCart } from "@/src/features/shoppingCart/hooks/useAddToCart";
+import { ProductVariant } from "@/src/types/product";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ShoppingCartItemState {
   productId: number;
   quantity: number;
   couponId: number | null;
+  variant: ProductVariant | null;
 }
 
 export default function ProductDetailPage() {
@@ -28,9 +31,26 @@ export default function ProductDetailPage() {
     productId: Number(id),
     quantity: 1,
     couponId: null,
+    variant: null,
   });
-
   const { data: product } = useGetProductById(id);
+  const groupedOptions = useMemo(() => {
+    const allOptionValues =
+      product?.variants?.flatMap((variant) => variant.variantValues?.map((value) => value?.optionValue) ?? []) ?? [];
+
+    return allOptionValues.reduce<Record<string, typeof allOptionValues>>((acc, optionValue) => {
+      if (!optionValue?.option) return acc;
+
+      const key = optionValue.option.name || "";
+
+      if (!acc[key]) acc[key] = [];
+      acc[key].push(optionValue);
+      return acc;
+    }, {});
+  }, [product]);
+
+  console.log("categories: ", groupedOptions);
+
   const { mutate: addToCart } = useAddToCart();
 
   const handleAddToCart = useCallback(() => {
@@ -43,11 +63,23 @@ export default function ProductDetailPage() {
     });
   }, [shoppingCardItem]);
 
+  useEffect(() => {
+    if (!product?.variants?.[0]) return;
+
+    setShoppingCardItem({
+      ...shoppingCardItem,
+      productId: product?.id || 0,
+      variant: product?.variants?.[0],
+    });
+  }, [product]);
+
+  console.log("product: ", shoppingCardItem.variant?.sku);
+
   return (
     <div className="w-full">
       <div className="w-[80%] max-w-[1320px] mx-auto">
         <div className="flex gap-14 bg-white z-10 mt-8 rounded-sm">
-          <div className="">
+          <div className="flex-1">
             <div>
               <Image src="/assets/images/laptop-main.png" alt="Laptop main image" width={616} height={464} priority />
             </div>
@@ -60,7 +92,7 @@ export default function ProductDetailPage() {
             </div>
           </div>
 
-          <div className="">
+          <div className="flex-1">
             <div className="flex gap-1.5 items-center">
               <div className="flex">
                 {Array.from({ length: product?.stars || 0 }).map((_, index) => (
@@ -74,7 +106,7 @@ export default function ProductDetailPage() {
             <div className="mt-4">
               <div className="flex ">
                 <div className="flex-1">
-                  <span>Sku: A262461</span>
+                  <span>Sku: {shoppingCardItem?.variant?.sku || ""}</span>
                 </div>
                 <div className="flex-1">
                   <span>
@@ -82,24 +114,19 @@ export default function ProductDetailPage() {
                   </span>
                 </div>
               </div>
-
-              <div className="flex">
-                <div className="flex-1">
-                  <span>Sku: A262461</span>
-                </div>
-                <div className="flex-1">
-                  <span>Category: {product?.category?.name || ""}</span>
-                </div>
-              </div>
             </div>
 
             <div className="flex mt-6 items-center">
-              <span className="text-heading-3 text-secondary-500">${product?.price || 0}</span>
-              <span className="text-lg text-gray-500 ml-1 line-through">${product?.originalPrice || 0}</span>
+              <span className="text-heading-3 text-secondary-500">${product?.variants?.[0].price || 0}</span>
+              <span className="text-lg text-gray-500 ml-1 line-through">
+                ${product?.variants?.[0].originalPrice || 0}
+              </span>
               <div className="ml-3 bg-warning-400 px-[10] py-[5]">
                 <span className="text-body-small-600">
                   {Math.round(
-                    (((product?.originalPrice || 0) - (product?.price || 0)) / (product?.originalPrice || 1)) * 100
+                    (((product?.variants?.[0].originalPrice || 0) - (product?.variants?.[0].price || 0)) /
+                      (product?.variants?.[0].originalPrice || 1)) *
+                      100
                   )}
                   % OFF
                 </span>
@@ -107,67 +134,41 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="grid grid-cols-12 mt-3 gap-6">
-              <div className="col-span-6">
-                <span className="text-body-small-400">Color</span>
-                <div className="flex gap-3 mt-2">
-                  <div className="size-8 rounded-full bg-[#B1B5B8]" />
-                  <div className="size-8 rounded-full bg-[#B1B5B8]" />
-                </div>
-              </div>
+              {Object.entries(groupedOptions).map(([categoryName, optionValues], index) => {
+                const options = optionValues.map((v) => ({
+                  key: v?.id || 0,
+                  value: v?.value || "",
+                }));
 
-              <div className="col-span-6">
-                <span className="text-body-small-400">Size</span>
-                <div className="flex justify-between items-center px-4 py-3.5 border border-gray-100 rounded-xs">
-                  <span className="text-body-small-400 mb-2">14-inch Liquid Retina XDR display</span>
-                  <ChevronUp />
-                </div>
-              </div>
+                return (
+                  <div key={index} className="col-span-6">
+                    <div className="text-body-small-400">{categoryName}</div>
+                    <Dropdown key={index} value={optionValues?.[0]?.value || ""} />
+                  </div>
+                );
+              })}
 
-              <div className="col-span-6">
-                <span className="text-body-small-400">Memory</span>
-                <div className="flex justify-between items-center px-4 py-3.5 border border-gray-100 rounded-xs">
-                  <span className="text-body-small-400 mb-2">16GB unified memory</span>
-                  <ChevronUp />
-                </div>
-              </div>
+              <Stepper
+                value={shoppingCardItem.quantity}
+                onChange={(quantity) =>
+                  setShoppingCardItem((prev) => ({
+                    ...prev,
+                    quantity,
+                  }))
+                }
+                className="col-span-3"
+              />
 
-              <div className="col-span-6">
-                <span className="text-body-small-400">Storage</span>
-                <div className="flex justify-between items-center px-4 py-3.5 border border-gray-100 rounded-xs">
-                  <span className="text-body-small-400 mb-2">1TV SSD Storage</span>
-                  <ChevronUp />
-                </div>
-              </div>
+              <button
+                className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3"
+                onClick={handleAddToCart}
+              >
+                <span className="text-heading-3 text-gray">ADD TO CARD</span>
+                <ShoppingCartSimple />
+              </button>
 
-              <div className="col-span-12 grid grid-cols-12 gap-4 h-[56]">
-                {/* <div className="col-span-3 flex justify-between px-5 py-4 border border-gray-100 rounded-xs h-full">
-                  <span>-</span>
-                  <span>01</span>
-                  <span>+</span>
-                </div> */}
-
-                <Stepper
-                  value={shoppingCardItem.quantity}
-                  onChange={(quantity) =>
-                    setShoppingCardItem((prev) => ({
-                      ...prev,
-                      quantity,
-                    }))
-                  }
-                  className="col-span-3"
-                />
-
-                <button
-                  className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3"
-                  onClick={handleAddToCart}
-                >
-                  <span className="text-heading-3 text-gray">ADD TO CARD</span>
-                  <ShoppingCartSimple />
-                </button>
-
-                <div className="col-span-3 h-full flex justify-center items-center border-2 border-primary-500 rounded-[3px]">
-                  <span className="text-heading-6 text-primary-500">Buy now</span>
-                </div>
+              <div className="col-span-3 h-full flex justify-center items-center border-2 border-primary-500 rounded-[3px]">
+                <span className="text-heading-6 text-primary-500">Buy now</span>
               </div>
             </div>
 

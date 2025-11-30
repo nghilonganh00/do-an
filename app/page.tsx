@@ -9,6 +9,7 @@ import { X } from "@/src/components/icons/X";
 import { getAllCategories } from "@/src/features/category/api/getAllCategories";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { getProducts } from "@/src/features/products/apis/getProducts";
+import { useGetAllFeatureProducts } from "@/src/features/products/hooks/useGetAllFeatureProducts";
 import { useGetProducts } from "@/src/features/products/hooks/useGetProducts";
 import { TabItem } from "@/src/types";
 import Head from "next/head";
@@ -34,6 +35,7 @@ export default function HomePage() {
   const { data: products } = useGetProducts({
     params: { categoryId: selectedCategoryFilter?.value?.toString() || "" },
   });
+  const { data: featureProducts, isLoading: isLoadingFeatureProducts } = useGetAllFeatureProducts();
 
   const handleToggleQuickView = useCallback(() => {
     setShowQuickView((prev) => !prev);
@@ -110,7 +112,7 @@ export default function HomePage() {
           <div className="mt-[74px]">
             {/* --- Header --- */}
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-2xl font-bold">Feature Products</h2>
+              <h2 className="text-2xl font-bold">Sản phẩm nổi bật</h2>
 
               <div className="flex items-center gap-4 text-gray-600">
                 <div className="flex gap-3">
@@ -130,21 +132,9 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-6">
-              {products?.map((product) => (
-                <button
-                  key={product?.id}
-                  className="col-span-3"
-                  onClick={() => navigateToProductDetail(product?.id?.toString() || null)}
-                >
-                  <ProductCard
-                    key={product.id}
-                    name={product.name}
-                    image={product?.image}
-                    price={product?.price}
-                    stars={product?.stars}
-                  />
-                </button>
+            <div className="grid grid-cols-10 gap-6">
+              {featureProducts?.map((product) => (
+                <ProductCard key={product.id} productVariant={product} className="col-span-2" />
               ))}
             </div>
           </div>
