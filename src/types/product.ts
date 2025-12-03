@@ -1,5 +1,5 @@
 export type Category = {
-  id?: number;
+  id: number;
   name?: string;
   image?: string;
   totalProduct?: number;
@@ -7,47 +7,24 @@ export type Category = {
 };
 
 export type Product = {
-  id?: number;
+  id: number;
   name?: string;
   images?: string[];
   stars?: number;
   description?: string;
-  category_id?: number;
+  categoryId?: number;
   category?: Category;
   variants?: ProductVariant[];
-  options?: ProductOption[];
 };
 
 export interface ProductVariant {
   id: number;
   productId?: number;
+  variantName?: string;
   sku?: string;
   price?: number;
   originalPrice?: number;
   stock?: number;
   thumbnail?: string;
   product?: Product;
-  variantValues?: ProductVariantValue[];
-}
-
-export interface ProductVariantValue {
-  id: number;
-  variantId?: number;
-  optionValueId?: number;
-  variant?: ProductVariant;
-  optionValue?: ProductOptionValue;
-}
-
-export interface ProductOption {
-  id: number;
-  productId?: number;
-  name?: string;
-  optionValues?: ProductOptionValue[];
-}
-
-export interface ProductOptionValue {
-  id: number;
-  optionId?: number;
-  value?: string;
-  option?: ProductOption;
 }

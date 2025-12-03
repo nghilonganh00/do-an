@@ -6,12 +6,9 @@ import Dropdown from "@/src/components/common/input/Dropdown";
 import RadioGroup, { RadioGroupItem } from "@/src/components/common/input/RadioGroup";
 import { Line } from "@/src/components/common/Line";
 import Tag from "@/src/components/common/Tag";
-import { Search, Star } from "@/src/components/icons";
+import { Search } from "@/src/components/icons";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
-import { Check } from "@/src/components/icons/Check";
 import { X } from "@/src/components/icons/X";
-import Header from "@/src/components/layout/Header";
-import Image from "next/image";
 import { useState } from "react";
 
 const CATEGORIES: RadioGroupItem[] = [
@@ -170,9 +167,7 @@ export default function ShopPage() {
 
             <div className="col-span-7 flex gap-[22px] justify-end items-center">
               <span className="text-body-small-400">Sort by:</span>
-              <div className="w-[180px] h-11">
-                <Dropdown value="Most Popular" />
-              </div>
+              <div className="w-[180px] h-11">{/* <Dropdown value="Most Popular" /> */}</div>
             </div>
           </div>
 
@@ -195,13 +190,7 @@ export default function ShopPage() {
 
           <div className="grid grid-cols-12 gap-4 mt-6">
             {PRODUCTS.map((product) => (
-              <ProductCard
-                key={product.id}
-                name={product.name}
-                image={product.image}
-                price={product?.price}
-                stars={product?.stars}
-              />
+              <ProductCard productVariant={product} key={product.id} />
             ))}
           </div>
 

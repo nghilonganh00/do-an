@@ -1,13 +1,17 @@
 "use client";
-import { X } from "@/src/components/icons/X";
+
 import { useGetOrderById } from "@/src/features/order/hooks/userGetOrderById";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import dayjs from "dayjs";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
+import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
+import { useState } from "react";
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
+
+  const [isOpen, setIsOpen] = useState(false);
 
   const { data: order } = useGetOrderById(id!);
 
@@ -42,6 +46,7 @@ export default function OrderDetail() {
               <th className="px-4 py-2 text-center">Price</th>
               <th className="px-4 py-2 text-center">Quantity</th>
               <th className="px-4 py-2 text-right">Sub Total</th>
+              <th className="px-4 py-2 text-right">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -68,6 +73,14 @@ export default function OrderDetail() {
                     {formatPriceVN(
                       (item?.quantity || 0) * (item?.productVariant?.price || 0)
                     )}
+                  </td>
+                  <td className="px-4 py-2 text-right">
+                    <button
+                      onClick={() => setIsOpen(true)}
+                      className="px-4 py-2 border border-gray-100 rounded cursor-pointer"
+                    >
+                      Add Feedback
+                    </button>
                   </td>
                 </tr>
               );
@@ -117,7 +130,7 @@ export default function OrderDetail() {
         </div>
       </div>
 
-      
+      <FeedbackModal isOpen={isOpen} onPublishReview={() => setIsOpen(false)} />
     </div>
   );
 }

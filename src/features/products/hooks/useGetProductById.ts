@@ -1,7 +1,6 @@
 "use client";
 
 import { QueryOptions, useQuery } from "@tanstack/react-query";
-import { getProducts } from "../apis/getProducts";
 import { getProductById } from "../apis/getProductById";
 
 type UseProductByIdOptions = {

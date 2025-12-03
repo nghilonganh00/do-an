@@ -1,13 +1,13 @@
 "use client";
 
-import Dropdown from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
-import { useGetOrdersQuery } from "@/src/features/order/hooks/useGetAllOrders";
+import { useGetAllOrders } from "@/src/features/order/hooks/useGetAllOrder";
 import { Params } from "@/src/types";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
 
 const OrderManagementPage = () => {
-  const { data, isPending, error } = useGetOrdersQuery({
+  const { data, isPending, error } = useGetAllOrders({
     page: 1,
     limit: 10,
     sortBy: "created_at",
@@ -22,9 +22,7 @@ const OrderManagementPage = () => {
 
       <div className=" bg-white px-7 py-8">
         <div className="flex gap-3">
-          <div className="w-[180px] h-[48px]">
-            <Dropdown value="Filter" />
-          </div>
+          <div className="w-[180px] h-[48px]">{/* <Dropdown value="Filter" /> */}</div>
 
           <div className="col-span-5 flex items-center bg-white rounded-md shadow-sm overflow-hidden">
             <input
@@ -42,8 +40,8 @@ const OrderManagementPage = () => {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Order</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Payment status</th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Order Status</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Payment status</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Order Status</th>
               <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
             </tr>
           </thead>
@@ -51,21 +49,23 @@ const OrderManagementPage = () => {
           <tbody className="divide-y divide-gray-200 bg-white">
             {data?.data?.map((order) => {
               return (
-                <tr className="hover:bg-gray-50 transition">
+                <tr key={order.id} className="hover:bg-gray-50 transition">
                   <td className="px-6 py-4 text-sm text-gray-800">#{order.id}</td>
                   <td className="px-6 py-4 text-sm text-gray-600">
-                    {dayjs(order.createdAt).format("HH:MM, YYYY-MM-DD")}
+                    {dayjs(order.createdAt).format("HH:MM, DD-MM-YYYY")}
                   </td>
                   <td className="px-6 py-4 text-sm text-gray-600">{order?.user?.name || ""}</td>
-                  <td className="px-6 py-4 text-right text-sm flex items-center justify-center">
+                  <td className="px-6 py-4 text-left text-sm flex items-center justify-center">
                     <span className="text-green-600 font-medium">
                       {order?.payments?.[order?.payments.length - 1]?.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4 text-right text-sm">
+                  <td className="px-6 py-4 text-left text-sm">
                     <span className="text-blue-600 font-medium">{order?.status}</span>
                   </td>
-                  <td className="px-6 py-4 text-right text-sm text-gray-800">${order?.totalAmount || 0}</td>
+                  <td className="px-6 py-4 text-right text-sm text-gray-800">
+                    {formatPriceVN(order?.totalAmount || 0)}
+                  </td>
                 </tr>
               );
             })}

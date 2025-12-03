@@ -1,13 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { Check } from "../../icons/Check";
 
-export default function CheckBox({ title, style }: { title?: string; style?: React.CSSProperties }) {
+export default function CheckBox({
+  title,
+  onChange,
+  style,
+}: {
+  title?: string;
+  onChange: () => void;
+  style?: React.CSSProperties;
+}) {
   const [checked, setChecked] = useState(false);
 
+  const handleSelect = useCallback(() => {
+    setChecked(!checked);
+    if (onChange) onChange();
+  }, [checked, onChange]);
+
   return (
-    <button className="flex items-center gap-3" style={style} onClick={() => setChecked(!checked)}>
+    <button className="flex items-center gap-3" style={style} onClick={handleSelect}>
       <div
         className={`p-px self-start rounded-xs border-2 box-content transition-colors duration-200 ${
           checked ? "bg-primary-500 border-primary-500" : "bg-white border-gray-300"

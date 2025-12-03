@@ -4,29 +4,33 @@ import CheckBox from "@/src/components/common/input/Checkbox";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import VariantForm, { AddVariantForm, addVariantSchema } from "@/src/features/products/components/VariantForm";
 import useCreateProduct from "@/src/features/products/hooks/useCreateProduct";
+import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
+import { ProductVariant } from "@/src/types/product";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { X } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { use, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
 
-const createProductSchema = z.object({
+const editProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   categoryId: z.number().min(1, "Category is required"),
   description: z.string(),
-  variants: z.array(addVariantSchema).min(1, "At least one variant is required"),
+  variants: z.array(ProductVariant).min(1, "At least one variant is required"),
 });
 
-type CreateProductForm = z.infer<typeof createProductSchema>;
+type CreateProductForm = z.infer<typeof editProductSchema>;
 
-const AddProductPage = () => {
+const EditProductPage = () => {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
 
   const { data: categories } = useGetAllCategories();
-  const [variants, setVariants] = useState<AddVariantForm[]>([]);
+  const [variants, setVariants] = useState<ProductVariant[]>([]);
   const [variantForms, setVariantForms] = useState<number[]>([]);
   const createProductMutation = useCreateProduct();
+  const { data: product } = useGetProductById(id);
 
   const {
     register,
@@ -34,8 +38,17 @@ const AddProductPage = () => {
     setValue,
     formState: { errors },
   } = useForm<CreateProductForm>({
-    resolver: zodResolver(createProductSchema),
+    resolver: zodResolver(editProductSchema),
   });
+
+  useEffect(() => {
+    if (product) {
+      setValue("name", product?.name || "");
+      setValue("categoryId", product?.categoryId || 1);
+      setValue("description", product?.description || "");
+      setVariants(product.variants);
+    }
+  }, [product]);
 
   console.log("errors: ", errors);
 
@@ -183,4 +196,4 @@ const AddProductPage = () => {
   );
 };
 
-export default AddProductPage;
+export default EditProductPage;

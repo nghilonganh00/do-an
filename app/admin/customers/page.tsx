@@ -24,9 +24,7 @@ const CustomersManagementPage = () => {
 
       <div className=" bg-white px-7 py-8 mt-[30px]">
         <div className="flex gap-3">
-          <div className="w-[180px] h-[48px]">
-            <Dropdown value="Filter" />
-          </div>
+          <div className="w-[180px] h-[48px]">{/* <Dropdown value="Filter" /> */}</div>
 
           <div className=" flex items-center bg-white rounded-md shadow-sm overflow-hidden">
             <input

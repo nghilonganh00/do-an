@@ -6,6 +6,8 @@ import { ArrowRight } from "../icons/ArrowRight";
 import { useCallback, useMemo, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useGetMyShoppingCart } from "@/src/features/shoppingCart/hooks/useGetMyShoppingCart";
+import Image from "next/image";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 
 export default function Header() {
   const pathname = usePathname();
@@ -15,7 +17,7 @@ export default function Header() {
   const { data: shoppingCartItems } = useGetMyShoppingCart();
   const totalPrice = useMemo(() => {
     return shoppingCartItems?.reduce((total, item) => {
-      return total + (item?.product?.price || 0) * (item?.quantity || 0);
+      return total + (item?.variant?.price || 0) * (item?.quantity || 0);
     }, 0);
   }, [shoppingCartItems]);
 
@@ -26,7 +28,7 @@ export default function Header() {
   const handleNavigateToCart = useCallback(() => {
     router.push("/shopping-cart");
     handleToggleShopCart();
-  }, []);
+  }, [handleToggleShopCart, router]);
 
   if (pathname.startsWith("/admin")) {
     return null;
@@ -61,19 +63,22 @@ export default function Header() {
 
                 <div className="px-6 py-5 space-y-4 border-b border-gray-100">
                   {shoppingCartItems?.map((item) => (
-                    <div className="flex items-center justify-between gap-4">
+                    <div key={item.id} className="flex items-center justify-between gap-4">
                       <div className="border border-gray-100 ">
-                        <img src={item?.product?.image || ""} alt={item?.product?.name || ""} width={80} height={80} />
+                        <Image
+                          src={item?.variant?.thumbnail || ""}
+                          alt={item?.variant?.product?.name || ""}
+                          width={80}
+                          height={80}
+                        />
                       </div>
 
                       <div>
-                        <span className="text-body-small-400 text-gray-900">
-                          Canon EOS 1500D DSLR Camera Body+ 18-55 mm
-                        </span>
+                        <span className="text-body-small-400 text-gray-900">{item?.variant?.product?.name || ""}</span>
                         <div className="mt-2">
                           <span className="text-body-small-400 text-gray-600">{item?.quantity || 0} x</span>
                           <span className="text-body-small-600 text-secondary-500 ml-1">
-                            ${item?.product?.price || 0}
+                            {formatPriceVN(item?.variant?.price || 0)}
                           </span>
                         </div>
                       </div>
@@ -86,7 +91,7 @@ export default function Header() {
                 <div className="px-6 py-5 ">
                   <div className="flex items-center justify-between">
                     <span className="text-body-small-400 text-gray-600">Sub-Total:</span>
-                    <span className="text-body-small-500 text-gray-900">${totalPrice} USD</span>
+                    <span className="text-body-small-500 text-gray-900">{formatPriceVN(totalPrice || 0)}</span>
                   </div>
 
                   <button className="w-full h-12 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">

@@ -1,10 +1,41 @@
 "use client";
 
-import Dropdown from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
 import { useGetAllProducts } from "@/src/features/products/hooks/useGetAllProducts";
 import { Params } from "@/src/types";
+import type { Product, ProductVariant } from "@/src/types/product";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useCallback, useState } from "react";
+
+const Product = ({ product, onClick }: { product: Product; onClick: () => void }) => {
+  return (
+    <>
+      <tr key={product.id} className="button hover:bg-gray-50 transition" onClick={onClick}>
+        <td className="px-6 py-4 text-sm text-gray-800">{product.name}</td>
+        <td className="px-6 py-4 text-sm text-gray-600">{product?.variants?.length || 0}</td>
+        <td className="px-6 py-4 text-sm text-gray-600">{"blue"}</td>
+
+        <td className="px-6 py-4 text-right text-sm text-gray-700">${product?.variants?.[0]?.price || 0}</td>
+
+        <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">{product?.stars || 0} (32 Votes)</td>
+
+        {/* <td>{showMore ? <ChevronDown /> : <ChevronRight />}</td> */}
+      </tr>
+      {/* {product?.variants?.map((variant: ProductVariant) => (
+        <tr key={product.id} className="button hover:bg-gray-50 transition" onClick={handleToggleShowMore}>
+          <td className="px-6 py-4 text-sm text-gray-800">{product?.name}</td>
+          <td className="px-6 py-4 text-sm text-gray-600">{variant?.stock || 0}</td>
+          <td className="px-6 py-4 text-sm text-gray-600">{variant?.variantName}</td>
+
+          <td className="px-6 py-4 text-right text-sm text-gray-700">${variant.price || 0}</td>
+
+          <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">{product?.stars || 0} (32 Votes)</td>
+        </tr>
+      ))} */}
+    </>
+  );
+};
 
 const ProductManagementPage = () => {
   const router = useRouter();
@@ -27,9 +58,7 @@ const ProductManagementPage = () => {
 
       <div className=" bg-white px-7 py-8 mt-[30px]">
         <div className="flex gap-3">
-          <div className="w-[180px] h-[48px]">
-            <Dropdown value="Filter" />
-          </div>
+          <div className="w-[180px] h-[48px]">{/* <Dropdown value="Filter" /> */}</div>
 
           <div className="col-span-5 flex items-center bg-white rounded-md shadow-sm overflow-hidden">
             <input
@@ -49,22 +78,17 @@ const ProductManagementPage = () => {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Color</th>
               <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Price</th>
               <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Rating</th>
+              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700"></th>
             </tr>
           </thead>
 
           <tbody className="bg-white divide-y divide-gray-200">
             {data?.data?.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-800">{product.name}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{product?.inventory || 0}</td>
-                <td className="px-6 py-4 text-sm text-gray-600">{"blue"}</td>
-
-                <td className="px-6 py-4 text-right text-sm text-gray-700">${product?.price || 0}</td>
-
-                <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">
-                  {product?.stars || 0} (32 Votes)
-                </td>
-              </tr>
+              <Product
+                key={product.id}
+                product={product}
+                onClick={() => router.push(`/admin/products/${product.id}`)}
+              />
             ))}
           </tbody>
         </table>

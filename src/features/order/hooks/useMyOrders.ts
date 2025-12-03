@@ -2,12 +2,12 @@
 
 import { Params } from "@/src/types";
 import { useQuery } from "@tanstack/react-query";
-import { getAllOrders } from "../apis/getAllOrders";
+import { getMyOrders } from "../apis/getMyOrders";
 
-export const useGetOrdersQuery = (params: Params) => {
+export const useGetMyOrders = (params: Params) => {
   return useQuery({
-    queryKey: ["orders", params],
-    queryFn: () => getAllOrders(params),
+    queryKey: ["my-orders", params],
+    queryFn: () => getMyOrders(params),
     enabled: !!params, // tránh chạy khi params = undefined
   });
 };

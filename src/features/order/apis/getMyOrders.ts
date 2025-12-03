@@ -9,7 +9,7 @@ interface GetOrdersResponse {
   limit: number;
 }
 
-export const getAllOrders = async ({
+export const getMyOrders = async ({
   page = 1,
   limit = 10,
   sortBy = "created_at",
@@ -19,15 +19,18 @@ export const getAllOrders = async ({
   const to = from + limit - 1;
 
   // select nested để join bảng liên quan
-  let builder = supabase.from("orders").select(
-    `
+  let builder = supabase
+    .from("orders")
+    .select(
+      `
       *,
       user:userId(*),
       shipments:shipmentId (*),
       payments (*)
     `,
-    { count: "exact" }
-  );
+      { count: "exact" }
+    )
+    .eq("userId", 2);
 
   if (sortBy) {
     builder = builder.order(sortBy, { ascending: sortDir === "asc" });

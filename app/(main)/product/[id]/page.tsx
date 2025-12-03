@@ -1,6 +1,5 @@
 "use client";
 
-import Dropdown from "@/src/components/common/input/Dropdown";
 import ProductGallery from "@/src/components/common/ProductGallery";
 import Stepper from "@/src/components/common/Stepper";
 import { CreditCard, Heart, Star } from "@/src/components/icons";
@@ -11,10 +10,10 @@ import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
 import { useAddToCart } from "@/src/features/shoppingCart/hooks/useAddToCart";
-import { ProductVariant, ProductOptionValue } from "@/src/types/product";
+import { ProductVariant } from "@/src/types/product";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface ShoppingCartItemState {
   productId: number;
@@ -27,30 +26,13 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
 
-  const [shoppingCardItem, setShoppingCardItem] =
-    useState<ShoppingCartItemState>({
-      productId: Number(id),
-      quantity: 1,
-      couponId: null,
-      variant: null,
-    });
+  const [shoppingCardItem, setShoppingCardItem] = useState<ShoppingCartItemState>({
+    productId: Number(id),
+    quantity: 1,
+    couponId: null,
+    variant: null,
+  });
   const { data: product } = useGetProductById(id);
-  const groupedOptions: Record<string, ProductOptionValue[]> = useMemo(() => {
-    return (
-      product?.options?.reduce<Record<string, ProductOptionValue[]>>(
-        (acc, option) => {
-          if (!option?.name) return acc;
-          acc[option.name] = option.optionValues ?? [];
-          return acc;
-        },
-        {}
-      ) ?? {}
-    );
-  }, [product]);
-
-  const [selectedGroupedOptions, setSelectedGroupedOptions] = useState<
-    Record<string, ProductOptionValue>
-  >({});
 
   const { mutate: addToCart } = useAddToCart();
 
@@ -70,84 +52,14 @@ export default function ProductDetailPage() {
     );
   }, [shoppingCardItem, router, addToCart]);
 
-  const selectVariant = useCallback(
-    (options: Record<string, ProductOptionValue>) => {
-      const optionIds = Object.values(options).map((option) => option.id);
-
-      const variant = product?.variants?.find((variant) => {
-        if (!variant?.variantValues?.length) return false;
-
-        const productVariantIds = variant.variantValues.map(
-          (variantValue) => variantValue.optionValueId
-        );
-        return optionIds.every((id) => productVariantIds.includes(id!));
-      });
-
-      console.log("variant: ", variant);
-
+  useEffect(() => {
+    if (product && product?.variants && product?.variants?.length > 0) {
       setShoppingCardItem((prev) => ({
         ...prev,
-        variant: variant ?? null,
+        variant: product.variants[0],
       }));
-    },
-    [product]
-  );
-
-  const handleSelectPrimaryOption = useCallback(
-    (optionValue: ProductOptionValue) => {
-      const newOptions: Record<string, ProductOptionValue> = {};
-
-      Object.keys(groupedOptions).forEach((key) => {
-        newOptions[key] =
-          key === optionValue.option?.name
-            ? optionValue
-            : groupedOptions[key][0];
-      });
-
-      selectVariant(newOptions);
-
-      setSelectedGroupedOptions(newOptions);
-    },
-    [groupedOptions, selectVariant]
-  );
-
-  const handleSelectSecondaryOption = useCallback(
-    (optionValue: ProductOptionValue) => {
-      setSelectedGroupedOptions((prev) => {
-        const newOptions = {
-          ...prev,
-          [optionValue.option?.name || ""]: optionValue,
-        };
-
-        selectVariant(newOptions);
-
-        return newOptions;
-      });
-    },
-    [selectVariant]
-  );
-
-  useEffect(() => {
-    setShoppingCardItem((prev) => ({
-      ...prev,
-      productId: product?.id ?? 0,
-      variant: product?.variants?.[0] ?? null,
-    }));
-
-    const initOptions = Object.keys(groupedOptions).reduce(
-      (acc, key) => {
-        acc[key] = groupedOptions[key][0];
-        return acc;
-      },
-      {} as Record<string, ProductOptionValue>
-    );
-
-    selectVariant(initOptions);
-
-    setSelectedGroupedOptions(initOptions);
-  }, [product, groupedOptions, selectVariant]);
-
-  console.log("variant: ", shoppingCardItem?.variant);
+    }
+  }, []);
 
   return (
     <div className="w-full">
@@ -162,12 +74,8 @@ export default function ProductDetailPage() {
                   <Star key={index} />
                 ))}
               </div>
-              <span className="text-body-small-600">
-                {product?.stars || 5} Star Rating
-              </span>
-              <span className="text-body-small-400 text-gray-600">
-                (21,671 User feedback)
-              </span>
+              <span className="text-body-small-600">{product?.stars || 5} Star Rating</span>
+              <span className="text-body-small-400 text-gray-600">(21,671 User feedback)</span>
             </div>
             <span className="text-body-xl-400 mt-2">{product?.name || ""}</span>
             <div className="mt-4">
@@ -177,8 +85,7 @@ export default function ProductDetailPage() {
                 </div>
                 <div className="flex-1">
                   <span>
-                    Availability:{" "}
-                    <span className="text-success-500">In stock</span>
+                    Availability: <span className="text-success-500">In stock</span>
                   </span>
                 </div>
               </div>
@@ -194,8 +101,7 @@ export default function ProductDetailPage() {
               <div className="ml-3 bg-warning-400 px-[10] py-[5]">
                 <span className="text-body-small-600">
                   {Math.round(
-                    (((product?.variants?.[0].originalPrice || 0) -
-                      (product?.variants?.[0].price || 0)) /
+                    (((product?.variants?.[0].originalPrice || 0) - (product?.variants?.[0].price || 0)) /
                       (product?.variants?.[0].originalPrice || 1)) *
                       100
                   )}
@@ -205,46 +111,6 @@ export default function ProductDetailPage() {
             </div>
 
             <div className="grid grid-cols-12 mt-3 gap-6">
-              {selectedGroupedOptions &&
-                Object.entries(groupedOptions)?.map(
-                  ([categoryName, optionValues], index) => {
-                    if (!optionValues || !optionValues[0]) return;
-
-                    if (index === 0) {
-                      return (
-                        <div key={index} className="col-span-6">
-                          <div className="text-body-small-400">
-                            {categoryName}
-                          </div>
-                          <Dropdown
-                            key={index}
-                            value={selectedGroupedOptions[categoryName]}
-                            options={groupedOptions[categoryName]}
-                            onChange={handleSelectPrimaryOption}
-                          />
-                        </div>
-                      );
-                    }
-                    return (
-                      <div key={index} className="col-span-6">
-                        <div className="text-body-small-400">
-                          {categoryName}
-                        </div>
-                        <Dropdown
-                          key={index}
-                          value={selectedGroupedOptions[categoryName]}
-                          options={groupedOptions[categoryName].filter(
-                            (option) =>
-                              option.optionId ===
-                              selectedGroupedOptions[categoryName]?.optionId
-                          )}
-                          onChange={handleSelectSecondaryOption}
-                        />
-                      </div>
-                    );
-                  }
-                )}
-
               <Stepper
                 value={shoppingCardItem.quantity}
                 onChange={(quantity) =>
@@ -282,9 +148,7 @@ export default function ProductDetailPage() {
             <div>
               <span className="text-body-medium-600">Description</span>
             </div>
-            <div
-              dangerouslySetInnerHTML={{ __html: product?.description || "" }}
-            />
+            <div dangerouslySetInnerHTML={{ __html: product?.description || "" }} />
           </div>
 
           <div className="col-span-3">
@@ -292,37 +156,27 @@ export default function ProductDetailPage() {
             <div className="mt-4 space-y-3">
               <div className="flex gap-2 items-center">
                 <Medal />
-                <span className="text-body-small-400">
-                  Free 1 Year Warranty
-                </span>
+                <span className="text-body-small-400">Free 1 Year Warranty</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Truck />
-                <span className="text-body-small-400">
-                  Free Shipping & Fasted Delivery
-                </span>
+                <span className="text-body-small-400">Free Shipping & Fasted Delivery</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Handshake />
-                <span className="text-body-small-400">
-                  100% Money-back guarantee
-                </span>
+                <span className="text-body-small-400">100% Money-back guarantee</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Headphones />
-                <span className="text-body-small-400">
-                  24/7 Customer support
-                </span>
+                <span className="text-body-small-400">24/7 Customer support</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <CreditCard />
-                <span className="text-body-small-400">
-                  Secure payment method
-                </span>
+                <span className="text-body-small-400">Secure payment method</span>
               </div>
             </div>
           </div>
@@ -344,17 +198,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">
-                      Image
-                    </div>
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
                     <div className="">
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In
-                        Ear...
+                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">
-                        $1,500
-                      </div>
+                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
                     </div>
                   </div>
                 ))}
@@ -374,17 +223,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">
-                      Image
-                    </div>
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
                     <div className="">
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In
-                        Ear...
+                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">
-                        $1,500
-                      </div>
+                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
                     </div>
                   </div>
                 ))}
@@ -404,17 +248,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">
-                      Image
-                    </div>
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
                     <div className="">
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In
-                        Ear...
+                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">
-                        $1,500
-                      </div>
+                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
                     </div>
                   </div>
                 ))}
@@ -434,17 +273,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">
-                      Image
-                    </div>
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
                     <div className="">
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In
-                        Ear...
+                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">
-                        $1,500
-                      </div>
+                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
                     </div>
                   </div>
                 ))}

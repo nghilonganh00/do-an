@@ -2,26 +2,22 @@
 
 import ProductCard from "@/src/components/common/card/ProductCard";
 import TabsBar from "@/src/components/common/TabsBar";
-import { ChevronUp, Heart, Package, Star, User } from "@/src/components/icons";
+import { ChevronUp, Heart, Package, Star } from "@/src/components/icons";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Trophy } from "@/src/components/icons/Trophy";
 import { X } from "@/src/components/icons/X";
-import { getAllCategories } from "@/src/features/category/api/getAllCategories";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
-import { getProducts } from "@/src/features/products/apis/getProducts";
 import { useGetAllFeatureProducts } from "@/src/features/products/hooks/useGetAllFeatureProducts";
 import { useGetProducts } from "@/src/features/products/hooks/useGetProducts";
 import { TabItem } from "@/src/types";
-import Head from "next/head";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 
 export default function HomePage() {
   const router = useRouter();
   const [isShowQuickView, setShowQuickView] = useState(true);
   const [topRatedProducts, setTopRatedProducts] = useState<any[]>([]);
-  const [latestProducts, setLatestProducts] = useState<any[]>([]);
 
   const { data: categories } = useGetAllCategories();
 
@@ -134,7 +130,7 @@ export default function HomePage() {
 
             <div className="grid grid-cols-10 gap-6">
               {featureProducts?.map((product) => (
-                <ProductCard key={product.id} productVariant={product} className="col-span-2" />
+                <ProductCard key={product.id} product={product} className="col-span-2" />
               ))}
             </div>
           </div>

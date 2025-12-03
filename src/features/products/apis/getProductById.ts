@@ -8,14 +8,7 @@ export const getProductById = async (id: string): Promise<Product | null> => {
       `
       *,
       category:categories(*),
-      variants:productVariants(
-        *,
-        variantValues:productVariantValues(
-          *, 
-          optionValue:productOptionValues(*, option:productOptions(*))
-        )
-      ),
-      options:productOptions(*, optionValues:productOptionValues(*, option:productOptions(*)))
+      variants:productVariants(*)
       `
     )
     .eq("id", id)
