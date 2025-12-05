@@ -1,6 +1,5 @@
 "use client";
 
-import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { Edit, Trash2 } from "lucide-react";
 
 const items = [

@@ -5,12 +5,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cdn-v2.didongviet.vn",
-        pathname: "/files/**",
-      },
-      {
-        protocol: "https",
-        hostname: "didongviet.vn",
+        hostname: "firebasestorage.googleapis.com",
         pathname: "/**",
       },
     ],

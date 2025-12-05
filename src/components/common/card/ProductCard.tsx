@@ -17,7 +17,7 @@ export default function ProductCard({ product, className }: { product: Product; 
       onClick={() => router.push("product/" + product?.id)}
     >
       <Image
-        src={product?.images?.[0] || "/assets/images/mobile-1.png"}
+        src={product?.images?.[0] || ""}
         alt="Mobile 1"
         width={200}
         height={200}

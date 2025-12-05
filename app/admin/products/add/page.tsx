@@ -1,15 +1,18 @@
 "use client";
 
+import Editor from "@/src/components/common/Editor";
 import CheckBox from "@/src/components/common/input/Checkbox";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import VariantForm, { AddVariantForm, addVariantSchema } from "@/src/features/products/components/VariantForm";
 import useCreateProduct from "@/src/features/products/hooks/useCreateProduct";
+import { storage } from "@/src/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import z from "zod";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import z, { file } from "zod";
 
 const createProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -24,30 +27,54 @@ const AddProductPage = () => {
   const router = useRouter();
 
   const { data: categories } = useGetAllCategories();
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [variants, setVariants] = useState<AddVariantForm[]>([]);
-  const [variantForms, setVariantForms] = useState<number[]>([]);
   const createProductMutation = useCreateProduct();
 
+  useEffect(() => {
+    if (!files.length) return;
+
+    Promise.all(files.map((f) => URL.createObjectURL(f))).then((urls) => setPreviews(urls));
+  }, [files]);
+
   const {
+    control,
     register,
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<CreateProductForm>({
+  } = useForm({
     resolver: zodResolver(createProductSchema),
   });
 
   console.log("errors: ", errors);
+  console.log("files: ", files);
 
-  const onSubmit = (values: CreateProductForm) => {
-    console.log("add values: ", values);
-    createProductMutation.mutate(
-      {
-        ...values,
-        variants,
-      }
-      // { onSuccess: () => router.push("/admin/products") }
+  const uploadImages = useCallback(async (files: File[]) => {
+    if (!files.length) return [];
+
+    const uploadedFiles = await Promise.all(
+      files.map(async (file) => {
+        const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
+        const fileRef = ref(storage, `uploads/${uniqueName}`);
+        await uploadBytes(fileRef, file);
+        return getDownloadURL(fileRef);
+      })
     );
+
+    return uploadedFiles;
+  }, []);
+
+  const onSubmit = async (values: CreateProductForm) => {
+    console.log("values: ", values);
+    const uploadedFiles = await uploadImages(files);
+    console.log("uploadedFiles: ", uploadedFiles);
+    createProductMutation.mutate({
+      ...values,
+      images: uploadedFiles,
+      variants,
+    });
   };
 
   const addVariant = (variant: AddVariantForm) => {
@@ -56,8 +83,11 @@ const AddProductPage = () => {
     setValue("variants", newVariants);
   };
 
-  const addVariantForm = () => {
-    setVariantForms((prev) => [...prev, Date.now()]);
+  const removeVariant = (index: number) => {
+    const newVariants = [...variants];
+    newVariants.splice(index, 1);
+    setVariants(newVariants);
+    setValue("variants", newVariants);
   };
 
   return (
@@ -84,7 +114,12 @@ const AddProductPage = () => {
 
             <div>
               <label className="text-body-small-400">Product Description</label>
-              <input {...register("description")} className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
+
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => <Editor value={field.value} onChange={field.onChange} />}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -93,56 +128,17 @@ const AddProductPage = () => {
               <input
                 type="file"
                 accept="image/*"
+                multiple
+                onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                 className="block w-full text-sm text-gray-700 
                    border border-gray-300 rounded-lg cursor-pointer bg-white 
                    focus:outline-none file:bg-gray-100 file:border-0 file:px-4 file:py-2 file:mr-3"
               />
-            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-body-medium-600">Variants</span>
-
-                <button type="button" onClick={addVariantForm} className="bg-blue-600 text-white px-4 py-2 rounded">
-                  Add Variant
-                </button>
-              </div>
-
-              {/* Render các VariantForm */}
-              <div className="space-y-4">
-                {variantForms.map((id) => (
-                  <VariantForm key={id} onAddVariant={addVariant} />
-                ))}
-              </div>
-
-              {/* Danh sách variants đã submit */}
-              <div className="mt-4 space-y-2">
-                {variants.length > 0 && <h5 className="font-semibold">Added Variants:</h5>}
-
-                {variants.map((v, i) => (
-                  <div key={i} className="border p-3 rounded bg-gray-100">
-                    <div className="font-medium">{v.variantName}</div>
-                    <div className="text-sm text-gray-600">
-                      Price: {v.price} – Origin: {v.originalPrice} – Stock: {v.stock}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h5>Price</h5>
-
-              <div className="flex items-center gap-6">
-                <div className="flex-1">
-                  <label className="text-body-small-400">Product Price</label>
-                  <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
-                </div>
-
-                <div className="flex-1">
-                  <label className="text-body-small-400">Discount Price</label>
-                  <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
-                </div>
+              <div className="flex">
+                {previews.map((src, i) => {
+                  return <img key={i} src={src} className="w-24 h-24" />;
+                })}
               </div>
             </div>
           </form>
@@ -177,6 +173,80 @@ const AddProductPage = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-xl shadow-sm  mt-8 overflow-hidden">
+        <div className="p-6 flex items-center justify-between border-b border-gray-100">
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900">Phiên bản sản phẩm</h3>
+            <p className="text-sm text-gray-500 mt-1">Quản lý các biến thể như màu sắc, kích thước...</p>
+          </div>
+        </div>
+
+        <div className="p-6">
+          <div className="space-y-6 mb-8">
+            <div className="p-4 border border-blue-100 bg-blue-50/50 rounded-lg animate-fade-in">
+              <div className="flex justify-between items-center mb-3">
+                <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Mới</span>
+              </div>
+              <VariantForm onAddVariant={addVariant} />
+            </div>
+          </div>
+
+          {variants.length > 0 ? (
+            <div className="overflow-x-auto rounded-lg border border-gray-200">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tên phiên bản
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Giá bán
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Giá gốc
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Tồn kho
+                    </th>
+                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Hành động
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {variants.map((v, i) => (
+                    <tr key={i} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">{v.variantName}</div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{v.price}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{v.originalPrice}</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${Number(v.stock) > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+                        >
+                          {v.stock}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button className="text-red-600 hover:text-red-900 ml-3">Xóa</button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* Empty State khi chưa có variant */
+            variants.length === 0 && (
+              <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
+                <p className="text-gray-500">Chưa có phiên bản nào được thêm.</p>
+              </div>
+            )
+          )}
         </div>
       </div>
     </div>
