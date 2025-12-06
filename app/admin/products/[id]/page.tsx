@@ -1,23 +1,28 @@
 "use client";
 
+import Editor from "@/src/components/common/Editor/Editor";
 import CheckBox from "@/src/components/common/input/Checkbox";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
-import VariantForm, { AddVariantForm, addVariantSchema } from "@/src/features/products/components/VariantForm";
+import VariantArea from "@/src/features/products/components/VariantArea";
+import { VariantFormData } from "@/src/features/products/components/VariantForm";
+import useAddProductVariant from "@/src/features/products/hooks/useAddProductVariant";
 import useCreateProduct from "@/src/features/products/hooks/useCreateProduct";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
-import { ProductVariant } from "@/src/types/product";
+import useUpdateProductVariant from "@/src/features/products/hooks/useUpdateProductVariant";
+import { uploadImagesToFirebase } from "@/src/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
-import { use, useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useCallback, useEffect, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
 import z from "zod";
 
 const editProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   categoryId: z.number().min(1, "Category is required"),
   description: z.string(),
-  variants: z.array(ProductVariant).min(1, "At least one variant is required"),
+  variants: z.array(z.any()).min(1, "At least one variant is required"),
 });
 
 type CreateProductForm = z.infer<typeof editProductSchema>;
@@ -27,12 +32,14 @@ const EditProductPage = () => {
   const router = useRouter();
 
   const { data: categories } = useGetAllCategories();
-  const [variants, setVariants] = useState<ProductVariant[]>([]);
-  const [variantForms, setVariantForms] = useState<number[]>([]);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
+  const [variants, setVariants] = useState<VariantFormData[]>([]);
   const createProductMutation = useCreateProduct();
   const { data: product } = useGetProductById(id);
 
   const {
+    control,
     register,
     handleSubmit,
     setValue,
@@ -41,43 +48,87 @@ const EditProductPage = () => {
     resolver: zodResolver(editProductSchema),
   });
 
+  const { mutate: addProductVariant } = useAddProductVariant();
+  const { mutate: updateProductVariant } = useUpdateProductVariant();
+
   useEffect(() => {
     if (product) {
       setValue("name", product?.name || "");
       setValue("categoryId", product?.categoryId || 1);
       setValue("description", product?.description || "");
-      setVariants(product.variants);
+      if (product?.variants) {
+        setVariants(product.variants as VariantFormData[]);
+      }
+      setPreviews(product?.images || []);
     }
-  }, [product]);
+  }, [product, setValue]);
 
   console.log("errors: ", errors);
 
-  const onSubmit = (values: CreateProductForm) => {
-    console.log("add values: ", values);
-    createProductMutation.mutate(
-      {
-        ...values,
-        variants,
-      }
-      // { onSuccess: () => router.push("/admin/products") }
-    );
+  const onSubmit = async (values: CreateProductForm) => {
+    console.log("values: ", values);
+    const uploadedFiles = await uploadImagesToFirebase(files);
+
+    createProductMutation.mutate({
+      ...values,
+      images: [...(product?.images || []), ...uploadedFiles],
+      variants,
+    });
   };
 
-  const addVariant = (variant: AddVariantForm) => {
-    const newVariants = [...variants, variant];
-    setVariants((prev) => [...prev, variant]);
-    setValue("variants", newVariants);
+  const handleSubmitVariant = async (editingIndex: number | null, variantData: VariantFormData) => {
+    if (editingIndex !== null) {
+      // Logic CẬP NHẬT (Edit)
+      console.log("editingIndex: ", variantData.thumbnail);
+      const imageUrls = await uploadImagesToFirebase([variantData.thumbnail]);
+      console.log("imageUrls: ", files);
+      updateProductVariant({
+        ...variantData,
+        thumbnail: imageUrls.length > 0 ? imageUrls[0] : variantData.thumbnail,
+      });
+      const updatedVariants = [...variants];
+      updatedVariants[editingIndex] = variantData;
+      setVariants(updatedVariants);
+    } else {
+      // Logic THÊM MỚI (Add)
+      setVariants((prev) => [...prev, variantData]);
+      const imageUrls = await uploadImagesToFirebase([variantData.thumbnail]);
+      addProductVariant({
+        ...variantData,
+        productId: Number(id),
+        thumbnail: imageUrls.length > 0 ? imageUrls[0] : variantData.thumbnail,
+      });
+    }
   };
 
-  const addVariantForm = () => {
-    setVariantForms((prev) => [...prev, Date.now()]);
-  };
+  const handleDeleteVariant = useCallback(
+    (variantIndex: number) => {
+      const newVariants = variants.filter((_, i) => i !== variantIndex);
+      setVariants(newVariants);
+    },
+    [variants]
+  );
 
   return (
     <div className="px-10 py-6 ">
       <div className="flex items-center justify-between">
-        <span className="text-body-xl-600">Add Product</span>
+        <span className="text-body-xl-600">Chỉnh sửa sản phẩm</span>
         <div className="flex items-center gap-3">
+          <button
+            type="button"
+            className="flex items-center gap-2 h-10 px-4 bg-red-100 text-red-600 border border-red-200 rounded-sm hover:bg-red-200 transition-colors"
+            // onClick={handleDeleteProduct}
+            // disabled={deleteProductMutation.isPending}
+          >
+            {false ? (
+              "Deleting..."
+            ) : (
+              <>
+                <Trash2 size={18} />
+                <span>Delete</span>
+              </>
+            )}
+          </button>
           <button className="h-10 px-6 border border-[#D7DBEC] bg-white text-[#1E5EFF] rounded-sm">Cancel</button>
           <button className="h-10 px-6 bg-[#1E5EFF] text-white rounded-sm" onClick={handleSubmit(onSubmit)}>
             Save
@@ -97,7 +148,12 @@ const EditProductPage = () => {
 
             <div>
               <label className="text-body-small-400">Product Description</label>
-              <input {...register("description")} className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
+
+              <Controller
+                name="description"
+                control={control}
+                render={({ field }) => <Editor value={field.value} onChange={field.onChange} />}
+              />
             </div>
 
             <div className="flex flex-col gap-2">
@@ -106,56 +162,17 @@ const EditProductPage = () => {
               <input
                 type="file"
                 accept="image/*"
+                multiple
+                onChange={(e) => setFiles(Array.from(e.target.files ?? []))}
                 className="block w-full text-sm text-gray-700 
                    border border-gray-300 rounded-lg cursor-pointer bg-white 
                    focus:outline-none file:bg-gray-100 file:border-0 file:px-4 file:py-2 file:mr-3"
               />
-            </div>
 
-            <div className="space-y-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-body-medium-600">Variants</span>
-
-                <button type="button" onClick={addVariantForm} className="bg-blue-600 text-white px-4 py-2 rounded">
-                  Add Variant
-                </button>
-              </div>
-
-              {/* Render các VariantForm */}
-              <div className="space-y-4">
-                {variantForms.map((id) => (
-                  <VariantForm key={id} onAddVariant={addVariant} />
-                ))}
-              </div>
-
-              {/* Danh sách variants đã submit */}
-              <div className="mt-4 space-y-2">
-                {variants.length > 0 && <h5 className="font-semibold">Added Variants:</h5>}
-
-                {variants.map((v, i) => (
-                  <div key={i} className="border p-3 rounded bg-gray-100">
-                    <div className="font-medium">{v.variantName}</div>
-                    <div className="text-sm text-gray-600">
-                      Price: {v.price} – Origin: {v.originalPrice} – Stock: {v.stock}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <h5>Price</h5>
-
-              <div className="flex items-center gap-6">
-                <div className="flex-1">
-                  <label className="text-body-small-400">Product Price</label>
-                  <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
-                </div>
-
-                <div className="flex-1">
-                  <label className="text-body-small-400">Discount Price</label>
-                  <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
-                </div>
+              <div className="flex">
+                {previews.map((src, i) => {
+                  return <Image key={i} src={src} className="w-24 h-24" width={96} height={96} alt="" />;
+                })}
               </div>
             </div>
           </form>
@@ -192,6 +209,8 @@ const EditProductPage = () => {
           </div>
         </div>
       </div>
+
+      <VariantArea variants={variants} onSubmit={handleSubmitVariant} onDelete={handleDeleteVariant} />
     </div>
   );
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown, { DropdownItem } from "@/src/components/common/input/Dropdown";
 import ProductGallery from "@/src/components/common/ProductGallery";
 import Stepper from "@/src/components/common/Stepper";
 import { CreditCard, Heart, Star } from "@/src/components/icons";
@@ -13,7 +14,7 @@ import { useAddToCart } from "@/src/features/shoppingCart/hooks/useAddToCart";
 import { ProductVariant } from "@/src/types/product";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import { useParams, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 interface ShoppingCartItemState {
   productId: number;
@@ -26,6 +27,7 @@ export default function ProductDetailPage() {
   const router = useRouter();
   const { id } = useParams<{ id: string }>();
 
+  const [showedImage, setShowedImage] = useState<string>();
   const [shoppingCardItem, setShoppingCardItem] = useState<ShoppingCartItemState>({
     productId: Number(id),
     quantity: 1,
@@ -33,6 +35,11 @@ export default function ProductDetailPage() {
     variant: null,
   });
   const { data: product } = useGetProductById(id);
+  const categoryDropdownItems: DropdownItem[] = useMemo(
+    () =>
+      product?.variants?.map((variant) => ({ label: variant?.variantName || "", value: variant.id.toString() })) || [],
+    [product]
+  );
 
   const { mutate: addToCart } = useAddToCart();
 
@@ -52,20 +59,39 @@ export default function ProductDetailPage() {
     );
   }, [shoppingCardItem, router, addToCart]);
 
-  useEffect(() => {
-    if (product && product?.variants && product?.variants?.length > 0) {
+  const handleSelectVariant = useCallback(
+    (variantItem: DropdownItem) => {
+      console.log("item: ", variantItem);
+      const selectedVariant = product?.variants?.find((variant) => variant.id === Number(variantItem.value));
+      console.log("selected variant: ", selectedVariant);
+      if (!selectedVariant) return;
+
       setShoppingCardItem((prev) => ({
         ...prev,
-        variant: product.variants[0],
+        variant: selectedVariant,
+      }));
+
+      setShowedImage(selectedVariant.thumbnail);
+    },
+    [product]
+  );
+
+  useEffect(() => {
+    const firstVariant = product?.variants?.[0];
+    if (firstVariant) {
+      setShoppingCardItem((prev) => ({
+        ...prev,
+        variant: firstVariant,
       }));
     }
-  }, []);
+    setShowedImage(product?.images?.[0]);
+  }, [product]);
 
   return (
     <div className="w-full">
       <div className="w-[80%] max-w-[1320px] mx-auto">
         <div className="flex gap-14 bg-white z-10 mt-8 rounded-sm">
-          <ProductGallery images={product?.images || []} />
+          <ProductGallery key={showedImage} images={product?.images || []} showedImage={showedImage} />
 
           <div className="flex-1">
             <div className="flex gap-1.5 items-center">
@@ -96,19 +122,28 @@ export default function ProductDetailPage() {
                 {formatPriceVN(shoppingCardItem?.variant?.price || 0)}
               </span>
               <span className="text-lg text-gray-500 ml-1 line-through">
-                {formatPriceVN(product?.variants?.[0].originalPrice || 0)}
+                {formatPriceVN(shoppingCardItem?.variant?.originalPrice || 0)}
               </span>
               <div className="ml-3 bg-warning-400 px-[10] py-[5]">
                 <span className="text-body-small-600">
                   {Math.round(
-                    (((product?.variants?.[0].originalPrice || 0) - (product?.variants?.[0].price || 0)) /
-                      (product?.variants?.[0].originalPrice || 1)) *
+                    (((shoppingCardItem?.variant?.originalPrice || 0) - (shoppingCardItem?.variant?.price || 0)) /
+                      (shoppingCardItem?.variant?.originalPrice || 1)) *
                       100
                   )}
                   % OFF
                 </span>
               </div>
             </div>
+
+            <Dropdown
+              value={{
+                label: shoppingCardItem?.variant?.variantName || "",
+                value: shoppingCardItem?.variant?.id.toString() || "",
+              }}
+              options={categoryDropdownItems}
+              onChange={handleSelectVariant}
+            />
 
             <div className="grid grid-cols-12 mt-3 gap-6">
               <Stepper

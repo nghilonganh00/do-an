@@ -36,14 +36,9 @@ export default function ShoppingCart() {
   );
 
   const onChangeQuantity = (itemId: number, newQuantity: number) => {
-    queryClient.setQueryData(
-      ["shopping-cart"],
-      (oldData: ShoppingCartItem[]) => {
-        return oldData.map((item: ShoppingCartItem) =>
-          item.id === itemId ? { ...item, quantity: newQuantity } : item
-        );
-      }
-    );
+    queryClient.setQueryData(["shopping-cart"], (oldData: ShoppingCartItem[]) => {
+      return oldData.map((item: ShoppingCartItem) => (item.id === itemId ? { ...item, quantity: newQuantity } : item));
+    });
   };
 
   const handleApplyCoupon = useCallback(async () => {
@@ -65,11 +60,7 @@ export default function ShoppingCart() {
   }, [couponCode, fetchCoupon]);
 
   const subTotal =
-    shoppingCartItems?.reduce(
-      (total, item) =>
-        total + (item.variant?.price || 0) * (item.quantity || 0),
-      0
-    ) || 0;
+    shoppingCartItems?.reduce((total, item) => total + (item.variant?.price || 0) * (item.quantity || 0), 0) || 0;
 
   const discount = coupon
     ? coupon.discountType === DISCOUNT_TYPE.PERCENT
@@ -95,16 +86,7 @@ export default function ShoppingCart() {
       })
     );
     router.push("check-out");
-  }, [
-    shoppingCartItems,
-    coupon,
-    subTotal,
-    discount,
-    shipping,
-    tax,
-    total,
-    router,
-  ]);
+  }, [shoppingCartItems, coupon, subTotal, discount, shipping, tax, total, router]);
 
   return (
     <div className="w-full">
@@ -135,35 +117,19 @@ export default function ShoppingCart() {
                         width={72}
                         height={72}
                       />
-                      <span className="text-body-small-400">
-                        {item.variant?.product?.name || ""}
-                      </span>
-                      <span className="text-body-small-400">
-                        (
-                        {item.variant?.variantValues
-                          ?.map(
-                            (variantValue) => variantValue.optionValue?.value
-                          )
-                          .join(", ") || ""}
-                        )
-                      </span>
+                      <span className="text-body-small-400">{item.variant?.product?.name || ""}</span>
+                      <span className="text-body-small-400">({item.variant?.variantName})</span>
                     </td>
-                    <td className="px-4 py-2 text-right">
-                      {formatPriceVN(item.variant?.price || 0)}
-                    </td>
+                    <td className="px-4 py-2 text-right">{formatPriceVN(item.variant?.price || 0)}</td>
                     <td className="px-4 py-2 text-right w-12">
                       <Stepper
                         value={item?.quantity || 1}
-                        onChange={(quantity) =>
-                          onChangeQuantity(item.id, quantity)
-                        }
+                        onChange={(quantity) => onChangeQuantity(item.id, quantity)}
                         className="w-[148px]"
                       />
                     </td>
                     <td className="px-4 py-2 text-right">
-                      {formatPriceVN(
-                        (item.variant?.price || 0) * (item.quantity || 0)
-                      )}
+                      {formatPriceVN((item.variant?.price || 0) * (item.quantity || 0))}
                     </td>
                   </tr>
                 ))}
@@ -177,53 +143,30 @@ export default function ShoppingCart() {
             <span className="text-body-large-500">Tổng quan giỏ hàng</span>
 
             <div className="flex justify-between items-center mt-5">
-              <span className="text-body-small-400 text-gray-600">
-                Tạm tính
-              </span>
-              <span className="text-body-small-500">
-                {formatPriceVN(subTotal)}
-              </span>
+              <span className="text-body-small-400 text-gray-600">Tạm tính</span>
+              <span className="text-body-small-500">{formatPriceVN(subTotal)}</span>
             </div>
 
             <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">
-                Phí vận chuyển
-              </span>
-              <span className="text-body-small-500">
-                {shipping === 0 ? "Miễn phí" : formatPriceVN(shipping)}
-              </span>
+              <span className="text-body-small-400 text-gray-600">Phí vận chuyển</span>
+              <span className="text-body-small-500">{shipping === 0 ? "Miễn phí" : formatPriceVN(shipping)}</span>
             </div>
 
             <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">
-                Giảm giá
-              </span>
-              <span className="text-body-small-500">
-                -{formatPriceVN(discount)}
-              </span>
-            </div>
-
-            <div className="flex justify-between items-center mt-3">
-              <span className="text-body-small-400 text-gray-600">Thuế</span>
-              <span className="text-body-small-500">{formatPriceVN(tax)}</span>
+              <span className="text-body-small-400 text-gray-600">Giảm giá</span>
+              <span className="text-body-small-500">-{formatPriceVN(discount)}</span>
             </div>
 
             <div className="flex justify-between items-center mt-8">
-              <span className="text-body-medium-400 text-gray-600">
-                Tổng cộng
-              </span>
-              <span className="text-body-small-600">
-                {formatPriceVN(total)}
-              </span>
+              <span className="text-body-medium-400 text-gray-600">Tổng cộng</span>
+              <span className="text-body-small-600">{formatPriceVN(total)}</span>
             </div>
 
             <button
               className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
               onClick={handleProceedToCheckout}
             >
-              <span className="text-heading-7 text-gray">
-                Tiến hành thanh toán
-              </span>
+              <span className="text-heading-7 text-gray">Tiến hành thanh toán</span>
               <ArrowRight />
             </button>
           </div>

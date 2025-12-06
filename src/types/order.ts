@@ -1,5 +1,6 @@
 import { BaseEntity } from ".";
 import { PAYMENT_STATUS } from "../constants";
+import { Feedback } from "./feedback";
 import { ProductVariant } from "./product";
 import { User } from "./users";
 
@@ -35,6 +36,7 @@ export type OrderItem = {
   productVariantId?: number;
   quantity?: number;
   productVariant?: ProductVariant;
+  feedback?: Feedback;
 };
 export interface Order extends BaseEntity {
   id: number;

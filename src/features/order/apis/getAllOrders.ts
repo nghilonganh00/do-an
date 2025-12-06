@@ -18,7 +18,6 @@ export const getAllOrders = async ({
   const from = (page - 1) * limit;
   const to = from + limit - 1;
 
-  // select nested để join bảng liên quan
   let builder = supabase.from("orders").select(
     `
       *,

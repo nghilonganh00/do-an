@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
 
 type ProductGalleryProps = {
@@ -28,13 +28,7 @@ const ProductGallery = ({ showedImage, images }: ProductGalleryProps) => {
   return (
     <div className="flex-1">
       <div className="relative bg-gray-50 rounded-lg overflow-hidden mb-4">
-        <Image
-          src={activeImage || images[0]}
-          alt="Product main view"
-          width={450}
-          height={324}
-          priority
-        />
+        <Image src={activeImage || images[0]} alt="Product main view" width={450} height={324} priority />
       </div>
 
       <div className="flex gap-2 overflow-x-auto">

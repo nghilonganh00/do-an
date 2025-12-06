@@ -1,24 +1,25 @@
 "use client";
 
-import Editor from "@/src/components/common/Editor";
+import Editor from "@/src/components/common/Editor/Editor";
 import CheckBox from "@/src/components/common/input/Checkbox";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
-import VariantForm, { AddVariantForm, addVariantSchema } from "@/src/features/products/components/VariantForm";
+import VariantArea from "@/src/features/products/components/VariantArea";
+import { addVariantSchema, VariantFormData } from "@/src/features/products/components/VariantForm";
 import useCreateProduct from "@/src/features/products/hooks/useCreateProduct";
-import { storage } from "@/src/lib/firebase";
+import { uploadImagesToFirebase } from "@/src/lib/firebase";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { X } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import z, { file } from "zod";
+import z from "zod";
 
 const createProductSchema = z.object({
   name: z.string().min(1, "Name is required"),
   categoryId: z.number().min(1, "Category is required"),
   description: z.string(),
-  variants: z.array(addVariantSchema).min(1, "At least one variant is required"),
+  variants: z.array(z.object()).optional(),
 });
 
 type CreateProductForm = z.infer<typeof createProductSchema>;
@@ -29,7 +30,7 @@ const AddProductPage = () => {
   const { data: categories } = useGetAllCategories();
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
-  const [variants, setVariants] = useState<AddVariantForm[]>([]);
+  const [variants, setVariants] = useState<VariantFormData[]>([]);
   const createProductMutation = useCreateProduct();
 
   useEffect(() => {
@@ -51,44 +52,47 @@ const AddProductPage = () => {
   console.log("errors: ", errors);
   console.log("files: ", files);
 
-  const uploadImages = useCallback(async (files: File[]) => {
-    if (!files.length) return [];
+  const onSubmit = async (values: CreateProductForm) => {
+    const uploadedFiles = await uploadImagesToFirebase(files);
 
-    const uploadedFiles = await Promise.all(
-      files.map(async (file) => {
-        const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
-        const fileRef = ref(storage, `uploads/${uniqueName}`);
-        await uploadBytes(fileRef, file);
-        return getDownloadURL(fileRef);
+    const variantsWithThumbnailURL = await Promise.all(
+      variants.map(async (variant) => {
+        const thumbnailURLs = await uploadImagesToFirebase([variant.thumbnail]);
+        return {
+          ...variant,
+          thumbnail: thumbnailURLs[0],
+        };
       })
     );
 
-    return uploadedFiles;
-  }, []);
+    console.log("variantsWithThumbnailURL: ", variantsWithThumbnailURL);
 
-  const onSubmit = async (values: CreateProductForm) => {
-    console.log("values: ", values);
-    const uploadedFiles = await uploadImages(files);
-    console.log("uploadedFiles: ", uploadedFiles);
     createProductMutation.mutate({
       ...values,
       images: uploadedFiles,
-      variants,
+      variants: variantsWithThumbnailURL,
     });
   };
 
-  const addVariant = (variant: AddVariantForm) => {
-    const newVariants = [...variants, variant];
-    setVariants((prev) => [...prev, variant]);
-    setValue("variants", newVariants);
+  const handleSubmitVariant = async (editingIndex: number | null, variantData: VariantFormData) => {
+    if (editingIndex !== null) {
+      // Logic CẬP NHẬT (Edit)
+      const updatedVariants = [...variants];
+      updatedVariants[editingIndex] = variantData;
+      setVariants(updatedVariants);
+    } else {
+      // Logic THÊM MỚI (Add)
+      setVariants((prev) => [...prev, variantData]);
+    }
   };
 
-  const removeVariant = (index: number) => {
-    const newVariants = [...variants];
-    newVariants.splice(index, 1);
-    setVariants(newVariants);
-    setValue("variants", newVariants);
-  };
+  const handleDeleteVariant = useCallback(
+    (variantIndex: number) => {
+      const newVariants = variants.filter((_, i) => i !== variantIndex);
+      setVariants(newVariants);
+    },
+    [variants]
+  );
 
   return (
     <div className="px-10 py-6 ">
@@ -137,7 +141,7 @@ const AddProductPage = () => {
 
               <div className="flex">
                 {previews.map((src, i) => {
-                  return <img key={i} src={src} className="w-24 h-24" />;
+                  return <Image key={i} src={src} className="w-24 h-24" width={96} height={96} alt={i + ""} />;
                 })}
               </div>
             </div>
@@ -176,79 +180,7 @@ const AddProductPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm  mt-8 overflow-hidden">
-        <div className="p-6 flex items-center justify-between border-b border-gray-100">
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900">Phiên bản sản phẩm</h3>
-            <p className="text-sm text-gray-500 mt-1">Quản lý các biến thể như màu sắc, kích thước...</p>
-          </div>
-        </div>
-
-        <div className="p-6">
-          <div className="space-y-6 mb-8">
-            <div className="p-4 border border-blue-100 bg-blue-50/50 rounded-lg animate-fade-in">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-bold text-blue-600 uppercase tracking-wide">Mới</span>
-              </div>
-              <VariantForm onAddVariant={addVariant} />
-            </div>
-          </div>
-
-          {variants.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border border-gray-200">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tên phiên bản
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Giá bán
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Giá gốc
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Tồn kho
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Hành động
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {variants.map((v, i) => (
-                    <tr key={i} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="font-medium text-gray-900">{v.variantName}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">{v.price}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{v.originalPrice}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${Number(v.stock) > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-                        >
-                          {v.stock}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button className="text-red-600 hover:text-red-900 ml-3">Xóa</button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            /* Empty State khi chưa có variant */
-            variants.length === 0 && (
-              <div className="text-center py-10 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                <p className="text-gray-500">Chưa có phiên bản nào được thêm.</p>
-              </div>
-            )
-          )}
-        </div>
-      </div>
+      <VariantArea variants={variants} onSubmit={handleSubmitVariant} onDelete={handleDeleteVariant} />
     </div>
   );
 };

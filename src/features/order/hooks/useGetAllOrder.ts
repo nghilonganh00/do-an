@@ -8,6 +8,5 @@ export const useGetAllOrders = (params: Params) => {
   return useQuery({
     queryKey: ["orders", params],
     queryFn: () => getAllOrders(params),
-    enabled: !!params, // tránh chạy khi params = undefined
   });
 };

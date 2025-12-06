@@ -44,6 +44,7 @@ export const createOrder = async (
       .insert({
         shipmentId: newShipment.id,
         userId: 2,
+        discount: discount,
         totalAmount: total,
       })
       .select("*")
@@ -54,15 +55,13 @@ export const createOrder = async (
       return null;
     }
 
-    const { data: orderItems, error: orderItemsError } = await supabase
-      .from("orderItems")
-      .insert(
-        items.map((item) => ({
-          orderId: newOrder.id,
-          productVariantId: item.productVariantId,
-          quantity: item.quantity,
-        }))
-      ).select(`
+    const { data: orderItems, error: orderItemsError } = await supabase.from("orderItems").insert(
+      items.map((item) => ({
+        orderId: newOrder.id,
+        productVariantId: item.productVariantId,
+        quantity: item.quantity,
+      }))
+    ).select(`
     *,
     variants:productVariants(*)
   `);
@@ -85,13 +84,11 @@ export const createOrder = async (
       }
 
       if (coupon) {
-        const { error: orderCouponError } = await supabase
-          .from("orderCoupons")
-          .insert({
-            orderId: newOrder.id,
-            couponId: coupon.id,
-            discountAmount: discount,
-          });
+        const { error: orderCouponError } = await supabase.from("orderCoupons").insert({
+          orderId: newOrder.id,
+          couponId: coupon.id,
+          discountAmount: discount,
+        });
 
         if (orderCouponError) {
           console.error("Order coupon error:", orderCouponError);
@@ -100,14 +97,12 @@ export const createOrder = async (
       }
     }
 
-    const { data: payment, error: paymentError } = await supabase
-      .from("payments")
-      .insert({
-        orderId: newOrder.id,
-        amount: total,
-        method: "COD",
-        status: "pending",
-      });
+    const { data: payment, error: paymentError } = await supabase.from("payments").insert({
+      orderId: newOrder.id,
+      amount: total,
+      method: "COD",
+      status: "pending",
+    });
 
     if (paymentError) {
       console.error("Payment insert error:", paymentError);

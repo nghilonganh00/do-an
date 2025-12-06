@@ -1,3 +1,6 @@
+import { BaseEntity } from ".";
+import { OrderItem } from "./order";
+
 export type Category = {
   id: number;
   name?: string;
@@ -6,7 +9,7 @@ export type Category = {
   products?: Product[];
 };
 
-export type Product = {
+export interface Product extends BaseEntity {
   id: number;
   name?: string;
   images?: string[];
@@ -15,7 +18,8 @@ export type Product = {
   categoryId?: number;
   category?: Category;
   variants?: ProductVariant[];
-};
+  feedbackCount?: number;
+}
 
 export interface ProductVariant {
   id: number;
@@ -26,5 +30,7 @@ export interface ProductVariant {
   originalPrice?: number;
   stock?: number;
   thumbnail?: string;
+  feedbackCount?: number;
   product?: Product;
+  orderItems?: OrderItem[];
 }

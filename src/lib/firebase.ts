@@ -1,6 +1,6 @@
 // lib/firebase.ts
 import { initializeApp, getApps } from "firebase/app";
-import { getStorage } from "firebase/storage";
+import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -15,3 +15,18 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 
 export const storage = getStorage(app);
+
+export const uploadImagesToFirebase = async (files: File[]) => {
+  if (!files.length) return [];
+
+  const uploadedFiles = await Promise.all(
+    files.map(async (file) => {
+      const uniqueName = `${Date.now()}-${Math.random().toString(36).slice(2)}-${file.name}`;
+      const fileRef = ref(storage, `uploads/${uniqueName}`);
+      await uploadBytes(fileRef, file);
+      return getDownloadURL(fileRef);
+    })
+  );
+
+  return uploadedFiles;
+};
