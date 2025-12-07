@@ -7,8 +7,8 @@ export type DropdownItem = {
 };
 
 interface DropdownProps {
-  value: DropdownItem;
-  options: DropdownItem[];
+  value?: DropdownItem;
+  options?: DropdownItem[];
   onChange?: (value: DropdownItem) => void;
   className?: string;
 }
@@ -58,7 +58,7 @@ export default function Dropdown({ value, options, onChange, className }: Dropdo
           isOpen ? "block" : "hidden"
         } z-10`}
       >
-        {options.map((option) => (
+        {options?.map((option) => (
           <li
             key={option.value}
             className="px-4 py-2 hover:bg-gray-100 cursor-pointer"

@@ -1,21 +1,12 @@
 "use client";
 
-import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { useGetCategoriesWithTotal } from "@/src/features/category/hooks/useGetCategoriesWithTotal";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-
-const categories = [
-  { title: "Men Clothes", count: 24, color: "bg-amber-300" },
-  { title: "Women Clothes", count: 32, color: "bg-pink-300" },
-  { title: "Shoes", count: 18, color: "bg-green-300" },
-  { title: "Accessories", count: 12, color: "bg-blue-300" },
-];
 
 const CategoriesPage = () => {
   const router = useRouter();
 
-  const { data: categories, isLoading: isLoadingCategories } = useGetCategoriesWithTotal();
+  const { data: categories } = useGetCategoriesWithTotal();
 
   return (
     <div className="px-10 py-6 ">

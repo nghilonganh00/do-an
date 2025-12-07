@@ -5,7 +5,7 @@ import { Category } from "@/src/types/product";
 export const getCategoriesWithTotal = async (): Promise<Category[]> => {
   const categories = await getAllCategories();
 
-  const { data: products, error } = await supabase.from("products").select("category_id");
+  const { data: products, error } = await supabase.from("products").select("categoryId");
 
   if (error) {
     console.error("Failed to fetch products:", error);
@@ -14,8 +14,8 @@ export const getCategoriesWithTotal = async (): Promise<Category[]> => {
 
   const countMap =
     products?.reduce<Record<string, number>>((acc, prod) => {
-      if (prod.category_id) {
-        acc[prod.category_id] = (acc[prod.category_id] || 0) + 1;
+      if (prod.categoryId) {
+        acc[prod.categoryId] = (acc[prod.categoryId] || 0) + 1;
       }
       return acc;
     }, {}) ?? {};

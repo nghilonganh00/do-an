@@ -52,15 +52,15 @@ const EditProductPage = () => {
   const { mutate: updateProductVariant } = useUpdateProductVariant();
 
   useEffect(() => {
-    if (product) {
-      setValue("name", product?.name || "");
-      setValue("categoryId", product?.categoryId || 1);
-      setValue("description", product?.description || "");
-      if (product?.variants) {
-        setVariants(product.variants as VariantFormData[]);
-      }
-      setPreviews(product?.images || []);
+    if (!product) return;
+
+    setValue("name", product?.name || "");
+    setValue("categoryId", product?.categoryId || 1);
+    setValue("description", product?.description || "");
+    if (product?.variants) {
+      setVariants(product.variants as VariantFormData[]);
     }
+    setPreviews(product?.images || []);
   }, [product, setValue]);
 
   console.log("errors: ", errors);

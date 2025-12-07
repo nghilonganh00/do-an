@@ -1,6 +1,7 @@
 "use client";
 
 import { Search } from "@/src/components/icons";
+import { ORDER_STATUS, PAYMENT_STATUS } from "@/src/constants";
 import { useGetAllOrders } from "@/src/features/order/hooks/useGetAllOrder";
 import { Params } from "@/src/types";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
@@ -42,28 +43,37 @@ const OrderManagementPage = () => {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Payment status</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Order Status</th>
-              <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Total</th>
+              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200 bg-white">
             {data?.data?.map((order) => {
+              const paymentStatus = order?.payments?.[order?.payments.length - 1]?.status;
+              const shipmentStatus = order?.shipment?.state;
+              ORDER_STATUS
               return (
                 <tr key={order.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800">#{order.id}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {dayjs(order.createdAt).format("HH:MM, DD-MM-YYYY")}
+                  <td className="px-6 py-4 text-left text-sm text-gray-800">#{order.id}</td>
+                  <td className="px-6 py-4 text-left text-sm text-gray-600">
+                    {dayjs(order.created_at).format("HH:MM, DD-MM-YYYY")}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{order?.user?.name || ""}</td>
-                  <td className="px-6 py-4 text-left text-sm flex items-center justify-center">
-                    <span className="text-green-600 font-medium">
-                      {order?.payments?.[order?.payments.length - 1]?.status}
-                    </span>
+                  <td className="px-6 py-4 text-left text-sm text-gray-600">{order?.user?.name || ""}</td>
+                  <td className="px-6 py-4 text-left text-sm ">
+                    {paymentStatus === PAYMENT_STATUS.PENDING ? (
+                      <div className="inline-block text-green-600 bg-green-300 px-2 py-0.5 rounded-sm text-left font-medium">
+                        <span>Pending</span>
+                      </div>
+                    ) : (
+                      <div className="inline-block text-gray-600 bg-gray-300 px-2 py-0.5 rounded-sm text-left font-medium">
+                        <span>Paid</span>
+                      </div>
+                    )}
                   </td>
                   <td className="px-6 py-4 text-left text-sm">
                     <span className="text-blue-600 font-medium">{order?.status}</span>
                   </td>
-                  <td className="px-6 py-4 text-right text-sm text-gray-800">
+                  <td className="px-6 py-4 text-left text-sm text-gray-800">
                     {formatPriceVN(order?.totalAmount || 0)}
                   </td>
                 </tr>

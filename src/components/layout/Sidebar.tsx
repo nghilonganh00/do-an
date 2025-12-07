@@ -35,7 +35,7 @@ const MENU_ITEMS = [
   {
     id: 7,
     name: "Coupons",
-    link: "",
+    link: "/admin/coupons",
   },
   {
     id: 8,
