@@ -198,14 +198,7 @@ const EditProductPage = () => {
           <div className="bg-white p-7">
             <h5 className="text-body-medium-600">Tags</h5>
             <label className="text-body-small-400">Add Tags</label>
-            <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" placeholder="Enter tag name" />
-
-            <div className="flex flex-wrap gap-2 mt-5">
-              <button className="flex items-center gap-3 bg-[#E6E9F4] px-3 py-1 rounded-sm">
-                <span className="text-[#5A607F]">T-Shirt</span>
-                <X size={16} color="#5A607F" strokeWidth={3} />
-              </button>
-            </div>
+            <textarea className="w-full h-40 mt-2 border border-gray-100 rounded-xs p-2" placeholder="Enter tag name" />
           </div>
         </div>
       </div>

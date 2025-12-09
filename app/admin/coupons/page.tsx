@@ -14,29 +14,31 @@ const CouponDashboardScreen = () => {
   return (
     <div className="px-10 py-6">
       <div className="flex items-center justify-between">
-        <span className="text-body-xl-600">Coupons</span>
-        <button className="px-[30px] py-2 bg-[#1E5EFF] text-white" onClick={() => router.push("/admin/products/add")}>
-          Add Coupons
+        <span className="text-body-xl-600">Mã giảm giá</span>
+        <button className="px-[30px] py-2 bg-[#1E5EFF] text-white" onClick={() => router.push("/admin/coupons/add")}>
+          Thêm mã giảm giá
         </button>
       </div>
 
       <div className="bg-white px-7 py-3 mt-6">
-        <table className="w-full  border border-gray-50 rounded-md overflow-hidden">
+        <table className="w-full border border-gray-50 rounded-md overflow-hidden">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Coupon Name</th>
+              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Tên mã giảm giá</th>
+              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Đã sử dụng</th>
               <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Thời gian</th>
-              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Status</th>
-              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Total</th>
+              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Trạng thái</th>
+              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Giá trị</th>
             </tr>
           </thead>
+
           <tbody>
             {coupons?.map((item, index) => {
               return (
                 <tr
                   key={index}
                   onClick={() => router.push("/admin/coupons/add")}
-                  className="button border-t border-gray-200"
+                  className="cursor-pointer border-t border-gray-200"
                 >
                   <td className="px-6 py-4 flex items-center gap-2">
                     {item?.discountType === DISCOUNT_TYPE.PERCENT ? (
@@ -48,11 +50,15 @@ const CouponDashboardScreen = () => {
                         <Tag />
                       </div>
                     )}
+
                     <div>
-                      <h3>{item?.code || ""}</h3>
+                      <h3 className="text-body-large-500">{item?.code || ""}</h3>
                       <span className="text-gray-700">{item?.description || ""}</span>
                     </div>
                   </td>
+
+                  <td className="px-6 py-4">{item?.orderCoupons?.length || 0}</td>
+
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <div className="text-sm text-gray-600">
@@ -66,13 +72,17 @@ const CouponDashboardScreen = () => {
                       </div>
                     </div>
                   </td>
-                  <td className={`px-6 py-4`}>
+
+                  <td className="px-6 py-4">
                     <div
-                      className={`inline-block px-2 py-1 ${item?.active ? "text-success-500" : "text-primary-500"} ${item?.active ? "bg-success-50" : "text-orange-300"}`}
+                      className={`inline-block px-2 py-1 ${
+                        item?.active ? "text-success-500 bg-success-50" : "text-primary-500 bg-orange-50"
+                      }`}
                     >
-                      {item?.active ? "Active" : "Expired"}
+                      {item?.active ? "Đang hoạt động" : "Hết hạn"}
                     </div>
                   </td>
+
                   <td className="px-6 py-4 text-left">
                     {item?.discountType === DISCOUNT_TYPE.PERCENT
                       ? `${(item?.discountValue || 0) * 100}%`

@@ -47,7 +47,7 @@ export default function Dropdown({ value, options, onChange, className }: Dropdo
   return (
     <div className={`relative ${className}`} ref={dropdownRef}>
       <div
-        className="w-full flex justify-between items-center px-4 py-2 border border-gray-100 rounded cursor-pointer"
+        className="w-full h-12 flex justify-between items-center px-4 py-2 border border-gray-100 rounded cursor-pointer"
         onClick={() => setIsOpen(!isOpen)}
       >
         <span className="text-body-small-400">{selectedOption?.label}</span>

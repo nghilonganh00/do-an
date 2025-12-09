@@ -41,17 +41,20 @@ export const getAllProductsForAdmin = async ({
 
   const products = data.map((p) => {
     let feedbackCount = 0;
+    let soldCount = 0;
 
     p.variants?.forEach((v: ProductVariant) => {
       v.orderItems?.forEach((o: OrderItem) => {
         const rating = o.feedback?.rating || 0;
         feedbackCount += rating;
+        soldCount += o.quantity || 0;
       });
     });
 
     return {
       ...p,
       feedbackCount,
+      soldCount,
     };
   });
 

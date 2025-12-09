@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
 import { useState } from "react";
+import { Book } from "lucide-react";
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +30,59 @@ export default function OrderDetail() {
 
         <span className="text-heading-2 text-secondary-500">{formatPriceVN(order?.totalAmount || 0)}</span>
       </div>
-      <div className="px-6 py-5 w-full border border-gray-100">
+
+      <div className="mt-6">
+        <div className="px-24 flex items-center justify-between">
+          <div className="h-2 bg-primary-500 w-[25%]"></div>
+          <div className="h-2 bg-primary-100 w-[25%]"></div>
+          <div className="h-2 bg-primary-100 w-[25%]"></div>
+          <div className="h-2 bg-primary-100 w-[25%]"></div>
+        </div>
+        <div className="flex items-center justify-between px-[90px] mt-6">
+          <div className="flex flex-1 flex-col items-center">
+            <Book />
+            <span className="text-body-small-500 mt-3">Order Placed</span>
+          </div>
+          <div className="flex flex-1 flex-col items-center">
+            <Book />
+            <span className="text-body-small-500">Order Placed</span>
+          </div>
+          <div className="flex flex-1 flex-col items-center">
+            <Book />
+            <span className="text-body-small-500">Order Placed</span>
+          </div>
+          <div className="flex flex-1  flex-col items-center">
+            <Book />
+            <span className="text-body-small-500">Order Placed</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-8">
+        <span className="text-body-large-500">Order Activity</span>
+
+        <div className="space-y-4 mt-6">
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-xs bg-success-50"></div>
+
+            <div className="">
+              <h4>Your order has been delivered. Thank you for shopping at Clicon!</h4>
+              <span>23 Jan, 2021 at 7:32 PM</span>
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            <div className="w-12 h-12 rounded-xs bg-success-50"></div>
+
+            <div className="">
+              <h4>Your order has been delivered. Thank you for shopping at Clicon!</h4>
+              <span>23 Jan, 2021 at 7:32 PM</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-6 py-5 mt-8 w-full border border-gray-100">
         <h4 className="text-body-large-500">Product ({order?.orderItems?.length || 0})</h4>
 
         <table className="w-full border border-gray-200 rounded-md overflow-hidden mt-5">

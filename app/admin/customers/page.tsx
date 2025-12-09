@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "@/src/components/common/input/Dropdown";
 import { useGetAllCustomers } from "@/src/features/customer/hooks/useGetAllCustomers";
 import { User } from "@/src/types/users";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
@@ -17,16 +18,15 @@ const CustomersManagementPage = () => {
     <div className="px-10 py-6 ">
       <div className="flex items-center justify-between">
         <span className="text-body-xl-600">Customers</span>
-        <button className="px-[30px] py-2 bg-[#1E5EFF] text-white" onClick={() => router.push("/admin/products/add")}>
-          Add Customer
-        </button>
       </div>
 
       <div className=" bg-white px-7 py-8 mt-[30px]">
         <div className="flex gap-3">
-          <div className="w-[180px] h-12">{/* <Dropdown value="Filter" /> */}</div>
+          <div className="w-[180px] h-12">
+            <Dropdown value={{ label: "All", value: "all" }} options={[{ label: "All", value: "all" }]} />
+          </div>
 
-          <div className=" flex items-center bg-white rounded-md shadow-sm overflow-hidden">
+          <div className="w-full flex items-center bg-white rounded-md shadow-sm overflow-hidden">
             <input
               type="text"
               placeholder="Search for anything..."

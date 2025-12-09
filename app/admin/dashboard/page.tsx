@@ -1,5 +1,13 @@
 "use client";
 
+import { useGetAllOrders } from "@/src/features/order/hooks/useGetAllOrder";
+import { useGetAllOrdersForAdmin } from "@/src/features/order/hooks/useGetAllOrdersForAdmin";
+import { useGetAllPaymentsForAdmin } from "@/src/features/payments/hooks/useAllPaymentsForAdmin";
+import { UseGetAllBestSellingProductVariantOptions } from "@/src/features/products/hooks/useGetAllBestSellingProductVariant";
+import { useGetAllProducts } from "@/src/features/products/hooks/useGetAllProducts";
+import { Order } from "@/src/types/order";
+import dayjs, { duration } from "dayjs";
+import { useMemo } from "react";
 import { LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const data = [
@@ -12,51 +20,83 @@ const data = [
 ];
 
 const DashboardPage = () => {
+  const { data: payments } = useGetAllPaymentsForAdmin({ params: { limit: 10 } });
+
+  const { data: products } = UseGetAllBestSellingProductVariantOptions({ params: { duration: 30 } });
+
+  const { data: orders } = useGetAllOrdersForAdmin({
+    params: {
+      limit: 1000,
+      page: 1,
+      sortBy: "created_at",
+      sortDir: "asc",
+      duration: 1,
+    },
+  });
+
+  const convertOrdersByHour = (orders: Order[] = []) => {
+    const map = new Map();
+
+    for (const order of orders) {
+      const date = new Date(order.created_at || "");
+      const hour = date.getHours().toString().padStart(2, "0") + ":00";
+
+      map.set(hour, (map.get(hour) || 0) + 1);
+    }
+
+    return Array.from(map, ([name, value]) => ({ name, value }));
+  };
+
+  const chartData = useMemo(() => {
+    if (!orders) return [];
+    return convertOrdersByHour(orders.sort((a, b) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix()));
+  }, [orders]);
+
   return (
     <div className="px-10 py-6 ">
-      <span className="text-body-xl-600">Dashboard</span>
+      <span className="text-body-xl-600">Tổng quan</span>
 
       <div className="flex justify-between mt-6">
         <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
           <span className="text-body-medium-600">$10.540</span>
-          <span>Total Reven</span>
+          <span>Tổng doanh thu</span>
           <span className="text-[#06A561]">22.45%</span>
         </div>
 
         <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
           <span className="text-body-medium-600">$10.540</span>
-          <span>Total Reven</span>
+          <span>Tổng doanh thu</span>
           <span className="text-[#06A561]">22.45%</span>
         </div>
 
         <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
           <span className="text-body-medium-600">$10.540</span>
-          <span>Total Reven</span>
+          <span>Tổng doanh thu</span>
           <span className="text-[#06A561]">22.45%</span>
         </div>
 
         <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
           <span className="text-body-medium-600">$10.540</span>
-          <span>Total Reven</span>
+          <span>Tổng doanh thu</span>
           <span className="text-[#06A561]">22.45%</span>
         </div>
 
         <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
           <span className="text-body-medium-600">$10.540</span>
-          <span>Total Reven</span>
+          <span>Tổng doanh thu</span>
           <span className="text-[#06A561]">22.45%</span>
         </div>
       </div>
 
       <div className="p-7 bg-white mt-7">
         <div className="flex items-center justify-between">
-          <span className="text-body-medium-600">Orders Over Time</span>
-          <span>Last 12 Hours</span>
+          <span className="text-body-medium-600">Đơn hàng theo thời gian</span>
+          <span>12 giờ gần nhất</span>
         </div>
 
         <div className="w-full h-72 p-4 bg-white rounded-xl shadow">
           <ResponsiveContainer width="100%" height="100%">
-            <ReLineChart data={data}>
+            <ReLineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis />
@@ -69,60 +109,59 @@ const DashboardPage = () => {
 
       <div className="grid grid-cols-12 gap-[30px] mt-6">
         <div className="col-span-6 p-7 bg-white">
-          <span className="text-body-medium-600">Recent Transactions</span>
+          <div className="flex items-center justify-between">
+            <span className="text-body-medium-600">Giao dịch gần đây</span>
+
+            <button className="text-blue-700">Xem chi tiết</button>
+          </div>
 
           <table className="min-w-full mt-5">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Date</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Status</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tên</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Ngày</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Số tiền</th>
+                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Trạng thái</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-800">Jagarnath S.</td>
-                <td className="px-6 py-4 text-sm text-gray-600">24.05.2023</td>
-                <td className="px-6 py-4 text-sm text-gray-600">$124.97</td>
-                <td className="px-6 py-4 text-sm text-gray-600">Paid</td>
-              </tr>
-
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-800">Jagarnath S.</td>
-                <td className="px-6 py-4 text-sm text-gray-600">24.05.2023</td>
-                <td className="px-6 py-4 text-sm text-gray-600">$124.97</td>
-                <td className="px-6 py-4 text-sm text-gray-600">Paid</td>
-              </tr>
+              {payments?.map((payment) => (
+                <tr key={payment.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-800">{payment.user?.name}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">
+                    {dayjs(payment?.created_at).format("HH:MM, DD/MM/YYYY")}
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{payment.amount}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{payment.status}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
 
         <div className="col-span-6 p-7 bg-white">
-          <span className="text-body-xl-600">Top Products by Units Sold</span>
+          <span className="text-body-xl-600">Sản phẩm bán chạy nhất</span>
 
           <table className="min-w-full mt-5">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Name</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Price</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Units Sold</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tên</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Giá</th>
+                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Số lượng bán</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-200">
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-800">Jagarnath S.</td>
-                <td className="px-6 py-4 text-sm text-gray-600">24.05.2023</td>
-                <td className="px-6 py-4 text-sm text-gray-600">$124.97</td>
-              </tr>
-
-              <tr className="hover:bg-gray-50 transition">
-                <td className="px-6 py-4 text-sm text-gray-800">Jagarnath S.</td>
-                <td className="px-6 py-4 text-sm text-gray-600">24.05.2023</td>
-                <td className="px-6 py-4 text-sm text-gray-600">$124.97</td>
-              </tr>
+              {products?.map((product) => (
+                <tr key={product.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-sm text-gray-800">
+                    {product.product?.name} ({product.variantName})
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{product.price}</td>
+                  <td className="px-6 py-4 text-sm text-gray-600">{product.soldcount}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

@@ -14,11 +14,17 @@ export const createProduct = async (product: CreateProduct): Promise<Product | n
     .select("*")
     .single();
 
+  console.log("variants: ", product.variants);
+
   const { data: productVariants, error: productVariantsError } = await supabase.from("productVariants").upsert(
     product.variants.map((variant) => ({
-      ...variant,
-      sku: Math.floor(Math.random() * 1_000_000).toString(),
+      variantName: variant.variantName,
       productId: data?.id,
+      sku: Math.floor(Math.random() * 1_000_000).toString(),
+      price: variant.price,
+      originalPrice: variant.originalPrice,
+      stock: variant.stock,
+      thumbnail: variant.thumbnail,
     })),
     { onConflict: "id" }
   );

@@ -1,5 +1,6 @@
 "use client";
 
+import Dropdown from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
 import { useGetAllProductsForAdmin } from "@/src/features/products/hooks/useGetAllProductsForAdmin";
 import { Params } from "@/src/types";
@@ -7,6 +8,7 @@ import type { Product } from "@/src/types/product";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 const Product = ({ product, onClick }: { product: Product; onClick: () => void }) => {
   console.log("product: ", product);
@@ -19,7 +21,7 @@ const Product = ({ product, onClick }: { product: Product; onClick: () => void }
         <td className="px-6 py-4 text-right text-sm text-gray-700">
           {formatPriceVN(product?.variants?.[0]?.price || 0)}
         </td>
-        <td className="px-6 py-4 text-center text-sm text-gray-700">{1000}</td>
+        <td className="px-6 py-4 text-center text-sm text-gray-700">{product?.soldCount || 0}</td>
         <td className="px-6 py-4 text-sm text-gray-800 text-center">{inventory || 0}</td>
         <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">
           {product?.stars || 0} ({product?.feedbackCount || 0} Votes)
@@ -35,11 +37,13 @@ const Product = ({ product, onClick }: { product: Product; onClick: () => void }
 const ProductManagementPage = () => {
   const router = useRouter();
 
+  const [params, setParams] = useState({ page: 1, limit: 10, sortBy: "created_at", sortDir: "desc" });
+
   const { data: data } = useGetAllProductsForAdmin({
-    page: 1,
-    limit: 10,
-    sortBy: "created_at",
-    sortDir: "desc",
+    page: params.page,
+    limit: params.limit,
+    sortBy: params.sortBy,
+    sortDir: params.sortDir,
   } as Params);
 
   return (
@@ -53,9 +57,11 @@ const ProductManagementPage = () => {
 
       <div className=" bg-white px-7 py-8 mt-[30px]">
         <div className="flex gap-3">
-          <div className="w-[180px] h-12">{/* <Dropdown value="Filter" /> */}</div>
+          <div className="w-[180px]">
+            <Dropdown value={{ label: "All", value: "all" }} options={[{ label: "All", value: "all" }]} />
+          </div>
 
-          <div className="col-span-5 flex items-center bg-white rounded-md shadow-sm overflow-hidden">
+          <div className="w-full flex items-center bg-white rounded-md shadow-sm overflow-hidden">
             <input
               type="text"
               placeholder="Search for anything..."

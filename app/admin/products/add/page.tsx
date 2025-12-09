@@ -67,11 +67,13 @@ const AddProductPage = () => {
 
     console.log("variantsWithThumbnailURL: ", variantsWithThumbnailURL);
 
-    createProductMutation.mutate({
+    await createProductMutation.mutateAsync({
       ...values,
       images: uploadedFiles,
       variants: variantsWithThumbnailURL,
     });
+
+    router.push("/admin/products");
   };
 
   const handleSubmitVariant = async (editingIndex: number | null, variantData: VariantFormData) => {

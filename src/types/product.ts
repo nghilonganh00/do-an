@@ -19,6 +19,7 @@ export interface Product extends BaseEntity {
   category?: Category;
   variants?: ProductVariant[];
   feedbackCount?: number;
+  soldCount?: number;
 }
 
 export interface ProductVariant {
@@ -31,6 +32,7 @@ export interface ProductVariant {
   stock?: number;
   thumbnail?: string;
   feedbackCount?: number;
+  soldcount?: number;
   product?: Product;
   orderItems?: OrderItem[];
 }

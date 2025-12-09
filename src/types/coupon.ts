@@ -1,4 +1,5 @@
 import { DISCOUNT_TYPE } from "../constants";
+import { orderCoupon } from "./order";
 
 export type Coupon = {
   id?: number;
@@ -11,4 +12,5 @@ export type Coupon = {
   validTo?: string;
   active?: boolean;
   description?: string;
+  orderCoupons?: orderCoupon[];
 };

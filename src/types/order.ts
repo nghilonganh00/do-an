@@ -1,6 +1,7 @@
 import { BaseEntity } from ".";
 import { PAYMENT_STATUS } from "../constants";
 import { Feedback } from "./feedback";
+import { Payment } from "./payment";
 import { ProductVariant } from "./product";
 import { User } from "./users";
 
@@ -15,16 +16,6 @@ export interface Shipment extends BaseEntity {
   country?: string;
   phone?: string;
   email?: string;
-}
-
-export interface Payment extends BaseEntity {
-  id: number;
-  orderId?: number;
-  amount?: number;
-  method?: string;
-  status?: PAYMENT_STATUS;
-  transactionId?: number;
-  paidAt?: string;
 }
 
 export type orderCoupon = {
