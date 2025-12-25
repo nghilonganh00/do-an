@@ -45,20 +45,20 @@ export default function OrderDetail() {
           </div>
           <div className="flex flex-1 flex-col items-center">
             <Book />
-            <span className="text-body-small-500">Order Placed</span>
+            <span className="text-body-small-500">Packing</span>
           </div>
           <div className="flex flex-1 flex-col items-center">
             <Book />
-            <span className="text-body-small-500">Order Placed</span>
+            <span className="text-body-small-500">On The Road</span>
           </div>
           <div className="flex flex-1  flex-col items-center">
             <Book />
-            <span className="text-body-small-500">Order Placed</span>
+            <span className="text-body-small-500">Delivered</span>
           </div>
         </div>
       </div>
 
-      <div className="mt-8">
+      {/* <div className="mt-8">
         <span className="text-body-large-500">Order Activity</span>
 
         <div className="space-y-4 mt-6">
@@ -80,7 +80,7 @@ export default function OrderDetail() {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       <div className="px-6 py-5 mt-8 w-full border border-gray-100">
         <h4 className="text-body-large-500">Product ({order?.orderItems?.length || 0})</h4>

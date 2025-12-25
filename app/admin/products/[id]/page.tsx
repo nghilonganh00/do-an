@@ -7,6 +7,7 @@ import VariantArea from "@/src/features/products/components/VariantArea";
 import { VariantFormData } from "@/src/features/products/components/VariantForm";
 import useAddProductVariant from "@/src/features/products/hooks/useAddProductVariant";
 import useCreateProduct from "@/src/features/products/hooks/useCreateProduct";
+import { useDeleteProductById } from "@/src/features/products/hooks/useDeleteProductById";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
 import useUpdateProductVariant from "@/src/features/products/hooks/useUpdateProductVariant";
 import { uploadImagesToFirebase } from "@/src/lib/firebase";
@@ -50,13 +51,17 @@ const EditProductPage = () => {
 
   const { mutate: addProductVariant } = useAddProductVariant();
   const { mutate: updateProductVariant } = useUpdateProductVariant();
+  const { mutateAsync: deleteProductById } = useDeleteProductById();
 
   useEffect(() => {
     if (!product) return;
 
+    console.log("product: ", product);
+
     setValue("name", product?.name || "");
     setValue("categoryId", product?.categoryId || 1);
     setValue("description", product?.description || "");
+    setValue("variants", product?.variants || []);
     if (product?.variants) {
       setVariants(product.variants as VariantFormData[]);
     }
@@ -109,6 +114,11 @@ const EditProductPage = () => {
     [variants]
   );
 
+  const handleDeleteProduct = useCallback(async () => {
+    if (!id) return;
+    await deleteProductById(Number(id));
+  }, [id, deleteProductById]);
+
   return (
     <div className="px-10 py-6 ">
       <div className="flex items-center justify-between">
@@ -117,7 +127,7 @@ const EditProductPage = () => {
           <button
             type="button"
             className="flex items-center gap-2 h-10 px-4 bg-red-100 text-red-600 border border-red-200 rounded-sm hover:bg-red-200 transition-colors"
-            // onClick={handleDeleteProduct}
+            onClick={handleDeleteProduct}
             // disabled={deleteProductMutation.isPending}
           >
             {false ? (
@@ -193,12 +203,6 @@ const EditProductPage = () => {
             <button className="mt-5 text-[#1E5EFF]" onClick={() => router.push("/admin/categories/add")}>
               Create New
             </button>
-          </div>
-
-          <div className="bg-white p-7">
-            <h5 className="text-body-medium-600">Tags</h5>
-            <label className="text-body-small-400">Add Tags</label>
-            <textarea className="w-full h-40 mt-2 border border-gray-100 rounded-xs p-2" placeholder="Enter tag name" />
           </div>
         </div>
       </div>

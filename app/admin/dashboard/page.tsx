@@ -1,23 +1,12 @@
 "use client";
 
-import { useGetAllOrders } from "@/src/features/order/hooks/useGetAllOrder";
 import { useGetAllOrdersForAdmin } from "@/src/features/order/hooks/useGetAllOrdersForAdmin";
 import { useGetAllPaymentsForAdmin } from "@/src/features/payments/hooks/useAllPaymentsForAdmin";
 import { UseGetAllBestSellingProductVariantOptions } from "@/src/features/products/hooks/useGetAllBestSellingProductVariant";
-import { useGetAllProducts } from "@/src/features/products/hooks/useGetAllProducts";
 import { Order } from "@/src/types/order";
-import dayjs, { duration } from "dayjs";
+import dayjs from "dayjs";
 import { useMemo } from "react";
 import { LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-
-const data = [
-  { name: "Jan", value: 40 },
-  { name: "Feb", value: 55 },
-  { name: "Mar", value: 60 },
-  { name: "Apr", value: 80 },
-  { name: "May", value: 75 },
-  { name: "Jun", value: 90 },
-];
 
 const DashboardPage = () => {
   const { data: payments } = useGetAllPaymentsForAdmin({ params: { limit: 10 } });

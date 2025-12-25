@@ -13,9 +13,17 @@ const ProductGallery = ({ showedImage, images }: ProductGalleryProps) => {
     showedImage || (images && images.length > 0) ? images[0] : ""
   );
 
+  console.log("activeImage: ", activeImage);
+
   const handleImageClick = useCallback((image: string) => {
     setActiveImage(image);
   }, []);
+
+  useEffect(() => {
+    if (showedImage) {
+      setActiveImage(showedImage);
+    }
+  }, [showedImage]);
 
   if (!images || images.length === 0) {
     return (

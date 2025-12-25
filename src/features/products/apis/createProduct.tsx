@@ -10,6 +10,7 @@ export const createProduct = async (product: CreateProduct): Promise<Product | n
       description: product.description,
       categoryId: product.categoryId,
       images: product.images,
+      metaDescription: product.metaDescription,
     })
     .select("*")
     .single();

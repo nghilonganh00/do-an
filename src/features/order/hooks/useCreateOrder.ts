@@ -20,21 +20,23 @@ export const useCreateOrder = () => {
       couponCode: string;
       discount: number;
       total: number;
+      provinceId: number;
+      districtId: number;
+      wardCode: string;
     }) => {
       return await createOrder(
         payload.items,
         payload.name,
-        payload.companyName,
         payload.address,
         payload.country,
-        payload.state,
-        payload.city,
-        payload.zipCode,
         payload.email,
         payload.phone,
         payload.couponCode,
         payload.discount,
-        payload.total
+        payload.total,
+        payload.provinceId,
+        payload.districtId,
+        payload.wardCode
       );
     },
 

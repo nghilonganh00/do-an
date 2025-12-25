@@ -2,6 +2,7 @@ import { memo, useCallback, useState } from "react";
 import Image from "next/image";
 import VariantForm, { VariantFormData } from "./VariantForm";
 import { getImageSrc } from "@/src/utils/getImageSrc";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 
 const VariantArea = ({
   variants,
@@ -114,8 +115,12 @@ const VariantArea = ({
                           <div className="font-medium text-gray-900">{v.variantName}</div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">${v.price}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${v.originalPrice}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 font-medium">
+                        {formatPriceVN(v.price)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {formatPriceVN(v.originalPrice)}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span
                           className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${Number(v.stock) > 0 ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
@@ -124,11 +129,10 @@ const VariantArea = ({
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        {/* Nút Sửa */}
                         <button
                           onClick={() => handlePressEdit(i)}
                           className="text-blue-600 hover:text-blue-900 mr-4"
-                          disabled={editingIndex === i} // Disable nếu đang sửa chính dòng này
+                          disabled={editingIndex === i}
                         >
                           {editingIndex === i ? "Đang sửa" : "Sửa"}
                         </button>

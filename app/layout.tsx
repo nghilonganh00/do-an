@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono, Public_Sans } from "next/font/google";
+import { Public_Sans } from "next/font/google";
 import "./globals.css";
 import Header from "@/src/components/layout/Header";
 import { Providers } from "@/src/providers/providers";
+import ChatBot from "@/src/components/common/Chatbot/ChatBot";
 
 const publicSans = Public_Sans({
   subsets: ["latin"],
@@ -25,6 +26,7 @@ export default function RootLayout({
         <Providers>
           <Header />
           {children}
+          <ChatBot />
         </Providers>
       </body>
     </html>

@@ -1,17 +1,20 @@
 "use client";
 
-import CheckBox from "@/src/components/common/input/Checkbox";
 import { ArrowRight } from "@/src/components/icons/ArrowRight";
 import { Check } from "@/src/components/icons/Check";
 import { Stack } from "@/src/components/icons/Stack";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Coupon } from "@/src/types/coupon";
 import { ShoppingCartItem } from "@/src/types/shoppingCart";
 import { useGetMe } from "@/src/features/user/hooks/useGetMe";
 import { useCreateOrder } from "@/src/features/order/hooks/useCreateOrder";
 import Image from "next/image";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
+import { useGetAllProvinces } from "@/src/features/address/hooks/useGetAllProvinces";
+import { useGetAllDistrictsByProvince } from "@/src/features/address/hooks/useGetAllDistrictsByProvince";
+import { useGetAllWardsByDistrict } from "@/src/features/address/hooks/useGetAllWardsByDistrict";
+import Dropdown, { DropdownItem } from "@/src/components/common/input/Dropdown";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -20,16 +23,22 @@ export default function CheckoutPage() {
   const [isPlacedOrder, setPlacedOrder] = useState(false);
   const [isSubmitting, setSubmitting] = useState(false);
 
-  const [billing, setBilling] = useState({
+  const [billing, setBilling] = useState<{
+    name: string;
+    address: string;
+    email: string;
+    phone: string;
+    provinceId: number | null;
+    districtId: number | null;
+    wardCode: string | null;
+  }>({
     name: "",
-    companyName: "",
     address: "",
-    country: "",
-    state: "",
-    city: "",
-    zipCode: "",
     email: "",
     phone: "",
+    provinceId: null,
+    districtId: null,
+    wardCode: null,
   });
 
   const [order, setOrder] = useState<{
@@ -41,30 +50,52 @@ export default function CheckoutPage() {
     total: number;
   } | null>(null);
 
-  console.log("order: ", order);
+  const { data: provinces } = useGetAllProvinces();
+  const { data: districts } = useGetAllDistrictsByProvince(billing?.provinceId ?? null);
+  const { data: wards } = useGetAllWardsByDistrict(billing?.districtId ?? null);
+
+  const provinceOptions = useMemo(
+    () => provinces?.map((p) => ({ label: p.ProvinceName, value: p.ProvinceID.toString() })) ?? [],
+    [provinces]
+  );
+  const districtOptions = useMemo(
+    () => districts?.map((d) => ({ label: d.DistrictName, value: d.DistrictID.toString() })) ?? [],
+    [districts]
+  );
+  const wardOptions = useMemo(
+    () => wards?.map((w) => ({ label: w.WardName, value: w.WardCode.toString() })) ?? [],
+    [wards]
+  );
+
+  const provinceValue = provinceOptions.find((option) => option.value === billing.provinceId?.toString());
+  const districtValue = districtOptions.find((option) => option.value === billing.districtId?.toString());
+  const wardValue = wardOptions.find((option) => option.value === billing.wardCode?.toString());
 
   const { data: createOrderData, mutateAsync: createOrder } = useCreateOrder();
 
   const handlePlaceOrder = async () => {
-    if (isSubmitting || !order) return;
+    if (isSubmitting || !order || !billing?.provinceId || !billing?.districtId) return;
     setSubmitting(true);
     try {
-      await createOrder({
+      const response = await createOrder({
         items: order.items,
         name: billing.name,
-        companyName: billing.companyName,
         address: billing.address,
-        country: billing.country,
-        state: billing.state,
-        city: billing.city,
-        zipCode: billing.zipCode,
         email: billing.email,
         phone: billing.phone,
         couponCode: order.coupon?.code ?? "",
         discount: order.discount,
         total: order.total,
+        provinceId: billing.provinceId,
+        districtId: billing.districtId,
+        wardCode: billing.wardCode,
       });
-      setPlacedOrder(true);
+
+      console.log("response: ", response);
+
+      window.location.href = response.payURL;
+
+      // setPlacedOrder(true);
     } catch (error) {
       console.error("Failed to place order:", error);
     } finally {
@@ -72,7 +103,6 @@ export default function CheckoutPage() {
     }
   };
 
-  // Lấy order từ localStorage khi mount
   useEffect(() => {
     const storedOrder = localStorage.getItem("order");
     if (storedOrder) setOrder(JSON.parse(storedOrder));
@@ -86,7 +116,6 @@ export default function CheckoutPage() {
         address: user.address || "",
         email: user.email || "",
         phone: user.phone || "",
-        companyName: user.companyName || "",
         country: user.country || "",
         state: user.state || "",
         city: user.city || "",
@@ -96,7 +125,7 @@ export default function CheckoutPage() {
   }, [user]);
 
   if (!order) {
-    return <div className="text-center mt-40">No order found. Please add items to cart first.</div>;
+    return <div className="text-center mt-40">Không tìm thấy đơn hàng. Vui lòng thêm sản phẩm vào giỏ trước.</div>;
   }
 
   return (
@@ -104,69 +133,60 @@ export default function CheckoutPage() {
       {!isPlacedOrder ? (
         <div className="max-w-[1320px] mx-auto py-[72px] grid grid-cols-12 gap-6">
           <div className="col-span-8">
-            <h3 className="text-body-large-500">Billing Information</h3>
+            <h3 className="text-body-large-500">Thông tin thanh toán</h3>
             <div className="grid grid-cols-12 gap-4 mt-6">
               <div className="col-span-6 flex flex-col justify-end">
-                <label>User name</label>
+                <label>Họ và tên</label>
                 <input
                   value={billing.name}
                   onChange={(e) => setBilling({ ...billing, name: e.target.value })}
-                  placeholder="Full name"
+                  placeholder="Ví dụ: Nguyễn Văn A"
                   className="px-4 py-3 border border-gray-100 mt-1.5"
                 />
               </div>
-              <div className="col-span-6 flex flex-col justify-end">
-                <label>Company Name</label>
-                <input
-                  value={billing.companyName}
-                  onChange={(e) => setBilling({ ...billing, companyName: e.target.value })}
-                  className="px-4 py-3 border border-gray-100 mt-1.5"
-                />
-              </div>
+
               <div className="col-span-12 flex flex-col justify-end">
-                <label>Address</label>
+                <label>Địa chỉ</label>
                 <input
                   value={billing.address}
                   onChange={(e) => setBilling({ ...billing, address: e.target.value })}
                   className="px-4 py-3 border border-gray-100 mt-1.5"
                 />
               </div>
+
               <div className="col-span-3 flex flex-col justify-end">
-                <label>Country</label>
-                <input
-                  value={billing.country}
-                  onChange={(e) => setBilling({ ...billing, country: e.target.value })}
-                  placeholder="Country"
-                  className="px-4 py-3 border border-gray-100 mt-1.5"
+                <label>Tỉnh / Thành phố</label>
+                <Dropdown
+                  options={provinceOptions.slice(4).reverse()}
+                  value={provinceValue}
+                  onChange={(province: DropdownItem) => {
+                    setBilling((prev) => ({ ...prev, provinceId: parseInt(province.value) }));
+                  }}
                 />
               </div>
+
               <div className="col-span-3 flex flex-col justify-end">
-                <label>Region/State</label>
-                <input
-                  value={billing.state}
-                  onChange={(e) => setBilling({ ...billing, state: e.target.value })}
-                  placeholder="Region/State"
-                  className="px-4 py-3 border border-gray-100 mt-1.5"
+                <label>Quận / Huyện</label>
+                <Dropdown
+                  options={districtOptions}
+                  value={districtValue}
+                  onChange={(district: DropdownItem) => {
+                    setBilling((prev) => ({ ...prev, districtId: parseInt(district.value) }));
+                  }}
                 />
               </div>
+
               <div className="col-span-3 flex flex-col justify-end">
-                <label>City</label>
-                <input
-                  value={billing.city}
-                  onChange={(e) => setBilling({ ...billing, city: e.target.value })}
-                  placeholder="City"
-                  className="px-4 py-3 border border-gray-100 mt-1.5"
+                <label>Xã / Phường / Thị trấn</label>
+                <Dropdown
+                  options={wardOptions}
+                  value={wardValue}
+                  onChange={(ward: DropdownItem) => {
+                    setBilling((prev) => ({ ...prev, wardCode: ward.value }));
+                  }}
                 />
               </div>
-              <div className="col-span-3 flex flex-col justify-end">
-                <label>Zip Code</label>
-                <input
-                  value={billing.zipCode}
-                  onChange={(e) => setBilling({ ...billing, zipCode: e.target.value })}
-                  placeholder="Zip Code"
-                  className="px-4 py-3 border border-gray-100 mt-1.5"
-                />
-              </div>
+
               <div className="col-span-6 flex flex-col justify-end">
                 <label>Email</label>
                 <input
@@ -175,22 +195,22 @@ export default function CheckoutPage() {
                   className="px-4 py-3 border border-gray-100 mt-1.5"
                 />
               </div>
+
               <div className="col-span-6 flex flex-col justify-end">
-                <label>Phone number</label>
+                <label>Số điện thoại</label>
                 <input
                   value={billing.phone}
                   onChange={(e) => setBilling({ ...billing, phone: e.target.value })}
-                  placeholder="Phone number"
+                  placeholder="Số điện thoại"
                   className="px-4 py-3 border border-gray-100 mt-1.5"
                 />
               </div>
             </div>
-
-            <CheckBox title="Ship into different address" style={{ marginTop: 24, marginBottom: 40 }} />
           </div>
 
           <div className="col-span-4 px-6 py-5 rounded-sm border border-gray-100">
-            <h3 className="text-body-large-500">Order Summary</h3>
+            <h3 className="text-body-large-500">Tóm tắt đơn hàng</h3>
+
             <div className="mt-5 space-y-4">
               {order.items.map((item) => (
                 <div key={item.id} className="flex items-center gap-6">
@@ -205,9 +225,12 @@ export default function CheckoutPage() {
                       {item?.variant?.product?.name} (
                       {item?.variant?.variantValues?.map((value) => value?.optionValue?.value).join(", ")})
                     </h4>
+
                     <div className="mt-2">
                       <span className="text-body-small-400 text-gray-600">{item.quantity} x</span>
-                      <span className="text-body-small-600 text-secondary-500 ml-1">${item.variant?.price || 0}</span>
+                      <span className="text-body-small-600 text-secondary-500 ml-1">
+                        {formatPriceVN(item.variant?.price || 0)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -216,19 +239,22 @@ export default function CheckoutPage() {
 
             <div className="mt-5 space-y-3">
               <div className="flex justify-between items-center">
-                <span className="text-body-small-400 text-gray-600">Sub-total</span>
+                <span className="text-body-small-400 text-gray-600">Tạm tính</span>
                 <span className="text-body-small-500">{formatPriceVN(Number(order.subTotal.toFixed(2)))}</span>
               </div>
+
               <div className="flex justify-between items-center">
-                <span className="text-body-small-400 text-gray-600">Shipping</span>
+                <span className="text-body-small-400 text-gray-600">Phí vận chuyển</span>
                 <span className="text-body-small-500">{formatPriceVN(Number(order.shipping.toFixed(2)))}</span>
               </div>
+
               <div className="flex justify-between items-center">
-                <span className="text-body-small-400 text-gray-600">Discount</span>
+                <span className="text-body-small-400 text-gray-600">Giảm giá</span>
                 <span className="text-body-small-500">-{formatPriceVN(Number(order.discount.toFixed(2)))}</span>
               </div>
+
               <div className="flex justify-between items-center mt-4">
-                <span className="text-body-medium-400 text-gray-900">Total</span>
+                <span className="text-body-medium-400 text-gray-900">Tổng cộng</span>
                 <span className="text-body-small-600">{formatPriceVN(Number(order.total.toFixed(2)))}</span>
               </div>
 
@@ -236,7 +262,7 @@ export default function CheckoutPage() {
                 className="w-full h-14 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
                 onClick={handlePlaceOrder}
               >
-                <span className="text-heading-7 text-gray uppercase">Place order</span>
+                <span className="text-heading-7 text-gray uppercase">Đặt hàng</span>
                 <ArrowRight />
               </button>
             </div>
@@ -249,10 +275,10 @@ export default function CheckoutPage() {
               <Check size={30} color="#2DB224" />
             </div>
 
-            <span className="text-heading-3 leading-0">Your order has been successfully placed</span>
+            <span className="text-heading-3 leading-0">Đơn hàng của bạn đã được đặt thành công</span>
+
             <span className="text-body-small-400 text-[#5F6C72] text-center mt-2">
-              Pellentesque sed lectus nec tortor tristique accumsan quis dictum risus. Donec volutpat mollis nulla non
-              facilisis.
+              Cảm ơn bạn đã mua hàng! Đơn hàng đang được xử lý, vui lòng chờ trong giây lát.
             </span>
 
             <div className="w-full flex items-center justify-between gap-3">
@@ -261,14 +287,14 @@ export default function CheckoutPage() {
                 onClick={() => router.push("/")}
               >
                 <Stack color="#FA8232" />
-                <span className="text-heading-7 text-primary-500">Go to Dashboard</span>
+                <span className="text-heading-7 text-primary-500">Về trang chủ</span>
               </button>
 
               <button
                 className="w-full h-12 flex-1 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs"
                 onClick={() => router.push(`/dashboard/orders/${createOrderData?.id}`)}
               >
-                <span className="text-heading-7 text-gray">View Order</span>
+                <span className="text-heading-7 text-gray">Xem đơn hàng</span>
                 <ArrowRight />
               </button>
             </div>

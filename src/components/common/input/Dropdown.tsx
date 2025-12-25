@@ -54,16 +54,12 @@ export default function Dropdown({ value, options, onChange, className }: Dropdo
         <ChevronUp className={`transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </div>
       <ul
-        className={`absolute top-full left-0 w-full bg-white border border-gray-100 rounded mt-1 shadow-md ${
+        className={`absolute top-full left-0 w-full h-60 overflow-scroll bg-white border border-gray-100 rounded mt-1 shadow-md ${
           isOpen ? "block" : "hidden"
         } z-10`}
       >
-        {options?.map((option) => (
-          <li
-            key={option.value}
-            className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-            onClick={() => handleSelect(option)}
-          >
+        {options?.map((option, index) => (
+          <li key={index} className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleSelect(option)}>
             {option.label}
           </li>
         ))}

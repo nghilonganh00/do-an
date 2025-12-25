@@ -6,14 +6,13 @@ import Link from "next/link";
 import { StoreFront } from "../../icons/StoreFront";
 
 const menuItems = [
-  { name: "Dashboard", icon: Stack, path: "/dashboard", active: false },
-  { name: "Order History", icon: StoreFront, path: "/dashboard/orders", active: true },
-  { name: "Track Order", icon: Stack, path: "/track", active: false },
-  { name: "Shopping Cart", icon: Stack, path: "/shopping-card", active: false },
-  { name: "Wishlist", icon: Stack, path: "/wishlist", active: false },
-  { name: "Compare", icon: Stack, path: "/compare", active: false },
-  { name: "Setting", icon: Stack, path: "/dashboard/setting", active: false },
-  { name: "Log-out", icon: Stack, path: "/logout", active: false },
+  { name: "Bảng điều khiển", icon: Stack, path: "/dashboard", active: false },
+  { name: "Lịch sử đơn hàng", icon: StoreFront, path: "/dashboard/orders", active: true },
+  { name: "Theo dõi đơn hàng", icon: Stack, path: "/track", active: false },
+  { name: "Giỏ hàng", icon: Stack, path: "/shopping-cart", active: false },
+  { name: "Danh sách yêu thích", icon: Stack, path: "/wishlist", active: false },
+  { name: "Cài đặt", icon: Stack, path: "/dashboard/setting", active: false },
+  { name: "Đăng xuất", icon: Stack, path: "/logout", active: false },
 ];
 
 export default function DashboardSidebar() {

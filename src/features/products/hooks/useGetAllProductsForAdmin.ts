@@ -1,10 +1,10 @@
 "use client";
 
-import { Params } from "@/src/types";
 import { useQuery } from "@tanstack/react-query";
-import { getAllProductsForAdmin } from "../apis/getAllProductsForAdmin";
+import { getAllProductsForAdmin, GetProductsForAdminParams } from "../apis/getAllProductsForAdmin";
 
-export const useGetAllProductsForAdmin = (params: Params) => {
+export const useGetAllProductsForAdmin = (params: GetProductsForAdminParams) => {
+  console.log("params: ", params);
   return useQuery({
     queryKey: ["products-for-admin", params],
     queryFn: () => getAllProductsForAdmin(params),

@@ -10,15 +10,22 @@ interface GetProductsResponse {
   limit: number;
 }
 
+export interface GetProductsForAdminParams extends Params {
+  categoryId?: number;
+}
+
 export const getAllProductsForAdmin = async ({
   page = 1,
   limit = 10,
   query = "",
   sortBy = "created_at",
   sortDir = "desc",
-}: Params): Promise<GetProductsResponse | null> => {
+  categoryId,
+}: GetProductsForAdminParams): Promise<GetProductsResponse | null> => {
   const from = (page - 1) * limit;
   const to = from + limit - 1;
+
+  console.log("categoryId: ", categoryId);
 
   let builder = supabase
     .from("products")
@@ -30,6 +37,10 @@ export const getAllProductsForAdmin = async ({
 
   if (sortBy) {
     builder = builder.order(sortBy, { ascending: sortDir === "asc" });
+  }
+
+  if (categoryId) {
+    builder = builder.eq("categoryId", categoryId);
   }
 
   const { data, error, count } = await builder.range(from, to);

@@ -34,10 +34,15 @@ export default function ProductDetailPage() {
     couponId: null,
     variant: null,
   });
+
   const { data: product } = useGetProductById(id);
+
   const categoryDropdownItems: DropdownItem[] = useMemo(
     () =>
-      product?.variants?.map((variant) => ({ label: variant?.variantName || "", value: variant.id.toString() })) || [],
+      product?.variants?.map((variant) => ({
+        label: variant?.variantName || "",
+        value: variant.id.toString(),
+      })) || [],
     [product]
   );
 
@@ -61,9 +66,7 @@ export default function ProductDetailPage() {
 
   const handleSelectVariant = useCallback(
     (variantItem: DropdownItem) => {
-      console.log("item: ", variantItem);
       const selectedVariant = product?.variants?.find((variant) => variant.id === Number(variantItem.value));
-      console.log("selected variant: ", selectedVariant);
       if (!selectedVariant) return;
 
       setShoppingCardItem((prev) => ({
@@ -100,18 +103,20 @@ export default function ProductDetailPage() {
                   <Star key={index} />
                 ))}
               </div>
-              <span className="text-body-small-600">{product?.stars || 5} Star Rating</span>
-              <span className="text-body-small-400 text-gray-600">(21,671 User feedback)</span>
+              <span className="text-body-small-600">{product?.stars || 5} sao đánh giá</span>
+              <span className="text-body-small-400 text-gray-600">(21,671 phản hồi người dùng)</span>
             </div>
+
             <span className="text-body-xl-400 mt-2">{product?.name || ""}</span>
+
             <div className="mt-4">
-              <div className="flex ">
+              <div className="flex">
                 <div className="flex-1">
-                  <span>Sku: {shoppingCardItem?.variant?.sku || ""}</span>
+                  <span>Mã SKU: {shoppingCardItem?.variant?.sku || ""}</span>
                 </div>
                 <div className="flex-1">
                   <span>
-                    Availability: <span className="text-success-500">In stock</span>
+                    Tình trạng: <span className="text-success-500">Còn hàng</span>
                   </span>
                 </div>
               </div>
@@ -131,7 +136,7 @@ export default function ProductDetailPage() {
                       (shoppingCardItem?.variant?.originalPrice || 1)) *
                       100
                   )}
-                  % OFF
+                  % GIẢM GIÁ
                 </span>
               </div>
             </div>
@@ -158,60 +163,65 @@ export default function ProductDetailPage() {
               />
 
               <button
-                className="col-span-6 flex justify-center items-center bg-primary-500  h-full gap-3"
+                className="col-span-6 flex justify-center items-center bg-primary-500 h-full gap-3"
                 onClick={handleAddToCart}
               >
-                <span className="text-heading-3 text-gray">ADD TO CARD</span>
+                <span className="text-heading-3 text-gray">THÊM VÀO GIỎ HÀNG</span>
                 <ShoppingCartSimple />
               </button>
 
               <div className="col-span-3 h-full flex justify-center items-center border-2 border-primary-500 rounded-[3px]">
-                <span className="text-heading-6 text-primary-500">Buy now</span>
+                <span className="text-heading-6 text-primary-500">Mua ngay</span>
               </div>
             </div>
 
             <div className="flex items-center justify-between mt-6">
               <div className="flex items-center gap-1.5">
                 <Heart width={24} height={24} color="#475156" />
-                <span>Add to Wishlist</span>
+                <span>Thêm vào danh sách yêu thích</span>
               </div>
             </div>
           </div>
         </div>
+
         <div className="grid grid-cols-12 gap-6 border border-gray-100 rounded-sm p-10 mt-[72px]">
           <div className="col-span-9">
             <div>
-              <span className="text-body-medium-600">Description</span>
+              <span className="text-body-medium-600">Mô tả</span>
             </div>
-            <div dangerouslySetInnerHTML={{ __html: product?.description || "" }} />
+            <div
+              dangerouslySetInnerHTML={{
+                __html: product?.description || "",
+              }}
+            />
           </div>
 
           <div className="col-span-3">
-            <h4 className="text-body-medium-600">Feature</h4>
+            <h4 className="text-body-medium-600">Tính năng</h4>
             <div className="mt-4 space-y-3">
               <div className="flex gap-2 items-center">
                 <Medal />
-                <span className="text-body-small-400">Free 1 Year Warranty</span>
+                <span className="text-body-small-400">Bảo hành miễn phí 1 năm</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Truck />
-                <span className="text-body-small-400">Free Shipping & Fasted Delivery</span>
+                <span className="text-body-small-400">Miễn phí vận chuyển & giao hàng nhanh</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Handshake />
-                <span className="text-body-small-400">100% Money-back guarantee</span>
+                <span className="text-body-small-400">Cam kết hoàn tiền 100%</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <Headphones />
-                <span className="text-body-small-400">24/7 Customer support</span>
+                <span className="text-body-small-400">Hỗ trợ khách hàng 24/7</span>
               </div>
 
               <div className="flex gap-2 items-center">
                 <CreditCard />
-                <span className="text-body-small-400">Secure payment method</span>
+                <span className="text-body-small-400">Phương thức thanh toán an toàn</span>
               </div>
             </div>
           </div>
@@ -220,12 +230,10 @@ export default function ProductDetailPage() {
         <div className="flex gap-6 my-[72]">
           <div>
             <div className="flex justify-between items-center mb-6">
-              <span className="text-body-medium-600">RELATED PRODUCT</span>
+              <span className="text-body-medium-600">SẢN PHẨM LIÊN QUAN</span>
             </div>
 
-            {/* --- Grid các sản phẩm --- */}
             <div className="space-y-4">
-              {/* Product Card */}
               {Array(3)
                 .fill(0)
                 .map((_, idx) => (
@@ -233,12 +241,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
-                    <div className="">
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Hình ảnh</div>
+                    <div>
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
+                        Tai nghe Bose Sport - Không dây - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                      <div className="text-body-small-600 text-secondary-500">1.500.000₫</div>
                     </div>
                   </div>
                 ))}
@@ -247,7 +255,7 @@ export default function ProductDetailPage() {
 
           <div>
             <div className="flex justify-between items-center mb-6">
-              <span className="text-body-medium-600">PRODUCT ACCESSORIES</span>
+              <span className="text-body-medium-600">PHỤ KIỆN SẢN PHẨM</span>
             </div>
 
             <div className="space-y-4">
@@ -258,12 +266,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
-                    <div className="">
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Hình ảnh</div>
+                    <div>
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
+                        Tai nghe Bose Sport - Không dây - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                      <div className="text-body-small-600 text-secondary-500">1.500.000₫</div>
                     </div>
                   </div>
                 ))}
@@ -272,7 +280,7 @@ export default function ProductDetailPage() {
 
           <div>
             <div className="flex justify-between items-center mb-6">
-              <span className="text-body-medium-600">APPLE PRODUCT</span>
+              <span className="text-body-medium-600">SẢN PHẨM APPLE</span>
             </div>
 
             <div className="space-y-4">
@@ -283,12 +291,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
-                    <div className="">
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Hình ảnh</div>
+                    <div>
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
+                        Tai nghe Bose Sport - Không dây - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                      <div className="text-body-small-600 text-secondary-500">1.500.000₫</div>
                     </div>
                   </div>
                 ))}
@@ -297,7 +305,7 @@ export default function ProductDetailPage() {
 
           <div>
             <div className="flex justify-between items-center mb-6">
-              <span className="text-body-medium-600">FEATURED PRODUCTS</span>
+              <span className="text-body-medium-600">SẢN PHẨM NỔI BẬT</span>
             </div>
 
             <div className="space-y-4">
@@ -308,12 +316,12 @@ export default function ProductDetailPage() {
                     key={idx}
                     className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
                   >
-                    <div className="w-full bg-gray-100 flex items-center justify-center">Image</div>
-                    <div className="">
+                    <div className="w-full bg-gray-100 flex items-center justify-center">Hình ảnh</div>
+                    <div>
                       <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                        Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
+                        Tai nghe Bose Sport - Không dây - Bluetooth In Ear...
                       </h3>
-                      <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                      <div className="text-body-small-600 text-secondary-500">1.500.000₫</div>
                     </div>
                   </div>
                 ))}

@@ -11,15 +11,17 @@ export type Category = {
 
 export interface Product extends BaseEntity {
   id: number;
+  categoryId?: number;
   name?: string;
   images?: string[];
   stars?: number;
   description?: string;
-  categoryId?: number;
+  metaDescription?: string;
   category?: Category;
   variants?: ProductVariant[];
   feedbackCount?: number;
   soldCount?: number;
+  main_price?: number;
 }
 
 export interface ProductVariant {

@@ -1,6 +1,5 @@
 import { useMutation, UseMutationResult, useQueryClient } from "@tanstack/react-query";
 import { ShoppingCartItem } from "@/src/types/shoppingCart";
-import { Product } from "@/src/types/product";
 import { removeFromCart } from "../apis/removeToCart";
 
 export const useRemoveFromCart = (): UseMutationResult<ShoppingCartItem | null, Error, number> => {

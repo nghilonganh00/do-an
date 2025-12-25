@@ -1,5 +1,4 @@
 import { BaseEntity } from ".";
-import { PAYMENT_STATUS } from "../constants";
 import { Feedback } from "./feedback";
 import { Payment } from "./payment";
 import { ProductVariant } from "./product";
@@ -37,7 +36,7 @@ export interface Order extends BaseEntity {
   shipmentId?: number;
   paymentId?: number;
   shipment?: Shipment;
-  payments?: Payment[];
+  payments?: Payment;
   orderCoupons?: orderCoupon[];
   orderItems?: OrderItem[];
   user?: User;

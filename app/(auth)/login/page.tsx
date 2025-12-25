@@ -12,31 +12,31 @@ export default function LoginPage() {
       <div className="shadow-md w-full max-w-[424px] pb-8 border border-gray-100 rounded-xs">
         <div className="flex">
           <button className="flex-1 text-center py-4 border-b-[3px] border-primary-500">
-            <span className="text-body-xl-600">Sign In</span>
+            <span className="text-body-xl-600">Đăng nhập</span>
           </button>
 
           <button
             className="flex-1 text-center py-4 border-b-[3px] border-white"
             onClick={() => router.push("/register")}
           >
-            <span className="text-body-xl-600 text-gray-500">Sign Up</span>
+            <span className="text-body-xl-600 text-gray-500">Đăng ký</span>
           </button>
         </div>
 
         <div className="px-8 mt-6">
-          <label className="text-body-small-400">Email address</label>
+          <label className="text-body-small-400">Địa chỉ email</label>
           <input className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
 
           <div className="mt-4">
             <div className="flex items-center justify-between">
-              <label className="text-body-small-400">Password</label>
-              <button className="text-body-small-500 text-secondary-500 hover:cursor-pointer">Forget Password</button>
+              <label className="text-body-small-400">Mật khẩu</label>
+              <button className="text-body-small-500 text-secondary-500 hover:cursor-pointer">Quên mật khẩu?</button>
             </div>
             <input type="password" className="w-full h-11 mt-2 border border-gray-100 rounded-xs p-2" />
           </div>
 
           <button className="w-full h-12 flex items-center justify-center gap-2 mt-6 bg-primary-500 rounded-xs">
-            <span className="text-heading-7 text-gray">SIGN IN</span>
+            <span className="text-heading-7 text-gray">ĐĂNG NHẬP</span>
             <ArrowRight />
           </button>
 
@@ -46,12 +46,12 @@ export default function LoginPage() {
           >
             <Image
               src="/assets/images/google.png"
-              alt="Google Icon"
+              alt="Biểu tượng Google"
               width={20}
               height={20}
               className="absolute left-4"
             />
-            <span className="text-body-small-400 text-gray-700">Login with Google</span>
+            <span className="text-body-small-400 text-gray-700">Đăng nhập bằng Google</span>
           </button>
 
           <button
@@ -60,12 +60,12 @@ export default function LoginPage() {
           >
             <Image
               src="/assets/images/apple.png"
-              alt="Google Icon"
+              alt="Biểu tượng Apple"
               width={20}
               height={20}
               className="absolute left-4"
             />
-            <span className="text-body-small-400 text-gray-700">Login with Apple</span>
+            <span className="text-body-small-400 text-gray-700">Đăng nhập bằng Apple</span>
           </button>
         </div>
       </div>

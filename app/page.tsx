@@ -9,7 +9,9 @@ import { X } from "@/src/components/icons/X";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
 import { useGetAllFeatureProducts } from "@/src/features/products/hooks/useGetAllFeatureProducts";
 import { useGetProducts } from "@/src/features/products/hooks/useGetProducts";
+import { useGetAllProductsForBrower } from "@/src/features/products/hooks/useGetProductsForBrower";
 import { TabItem } from "@/src/types";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
@@ -17,7 +19,6 @@ import { useCallback, useState } from "react";
 export default function HomePage() {
   const router = useRouter();
   const [isShowQuickView, setShowQuickView] = useState(true);
-  const [topRatedProducts, setTopRatedProducts] = useState<any[]>([]);
 
   const { data: categories } = useGetAllCategories();
 
@@ -33,6 +34,12 @@ export default function HomePage() {
   });
   const { data: featureProducts, isLoading: isLoadingFeatureProducts } = useGetAllFeatureProducts();
 
+  const { data: topRatedProductsData } = useGetAllProductsForBrower({
+    limit: 4,
+    sortBy: "starts",
+    sortDir: "desc",
+  });
+
   const handleToggleQuickView = useCallback(() => {
     setShowQuickView((prev) => !prev);
   }, []);
@@ -42,8 +49,6 @@ export default function HomePage() {
 
     router.push(`/product/${id}`);
   }, []);
-
-  console.log("product: ", topRatedProducts);
 
   return (
     <>
@@ -128,120 +133,149 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-10 gap-6">
-              {featureProducts?.map((product) => (
+            <div className="grid grid-cols-12 gap-6">
+              {featureProducts?.slice(0, 12).map((product) => (
                 <ProductCard key={product.id} product={product} className="col-span-2" />
               ))}
             </div>
           </div>
 
           <div className="flex gap-6 my-[72]">
-            <div>
+            <div className="flex-1">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-body-medium-600">RELATED PRODUCT</span>
+                <span className="text-body-medium-600">HOT SALE</span>
               </div>
 
-              {/* --- Grid các sản phẩm --- */}
               <div className="space-y-4">
                 {/* Product Card */}
-                {Array(3)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <button
-                      key={idx}
-                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
-                      onClick={handleToggleQuickView}
-                    >
-                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
-                      <div className="">
-                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
-                        </h3>
-                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                {topRatedProductsData?.data?.map((product, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                  >
+                    <Image src={product?.images?.[0]} width={80} height={80} alt="Smart TV" />
+                    <div className="">
+                      <h3 className="text-body-small-400 mb-2 line-clamp-2">{product?.name}</h3>
+                      <div className="flex gap-1 items-center mt-6">
+                        <div className="flex gap-[1.5px]">
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                        </div>
+                        <span className="text-body-tiny-400 text-gray-500">({product?.stars} stars)</span>
                       </div>
-                    </button>
-                  ))}
+                      <div className="text-body-small-600 text-secondary-500">
+                        {formatPriceVN(product?.main_price || 0)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div>
+            <div className="flex-1">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-body-medium-600">PRODUCT ACCESSORIES</span>
+                <span className="text-body-medium-600">BEST SELLERS</span>
               </div>
 
               {/* --- Grid các sản phẩm --- */}
               <div className="space-y-4">
                 {/* Product Card */}
-                {Array(3)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
-                    >
-                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
-                      <div className="">
-                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
-                        </h3>
-                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                {topRatedProductsData?.data?.map((product, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                  >
+                    <Image src={product?.images?.[0]} width={80} height={80} alt="Smart TV" />
+                    <div className="">
+                      <h3 className="text-body-small-400 mb-2 line-clamp-2">{product?.name}</h3>
+                      <div className="flex gap-1 items-center mt-6">
+                        <div className="flex gap-[1.5px]">
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                        </div>
+                        <span className="text-body-tiny-400 text-gray-500">({product?.stars} stars)</span>
+                      </div>
+                      <div className="text-body-small-600 text-secondary-500">
+                        {formatPriceVN(product?.main_price || 0)}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div>
+            <div className="flex-1">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-body-medium-600">APPLE PRODUCT</span>
+                <span className="text-body-medium-600">TOP RATED</span>
               </div>
 
               {/* --- Grid các sản phẩm --- */}
               <div className="space-y-4">
                 {/* Product Card */}
-                {Array(3)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
-                    >
-                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
-                      <div className="">
-                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
-                        </h3>
-                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                {topRatedProductsData?.data?.map((product, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                  >
+                    <Image src={product?.images?.[0]} width={80} height={80} alt="Smart TV" />
+                    <div className="">
+                      <h3 className="text-body-small-400 mb-2 line-clamp-2">{product?.name}</h3>
+                      <div className="flex gap-1 items-center mt-6">
+                        <div className="flex gap-[1.5px]">
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                        </div>
+                        <span className="text-body-tiny-400 text-gray-500">({product?.stars} stars)</span>
+                      </div>
+                      <div className="text-body-small-600 text-secondary-500">
+                        {formatPriceVN(product?.main_price || 0)}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div>
+            <div className="flex-">
               <div className="flex justify-between items-center mb-6">
-                <span className="text-body-medium-600">FEATURED PRODUCTS</span>
+                <span className="text-body-medium-600">NEW ARRIVAL</span>
               </div>
 
-              {/* --- Grid các sản phẩm --- */}
               <div className="space-y-4">
                 {/* Product Card */}
-                {Array(3)
-                  .fill(0)
-                  .map((_, idx) => (
-                    <div
-                      key={idx}
-                      className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
-                    >
-                      <Image src={"/assets/images/smart-tv.png"} width={80} height={80} alt="Smart TV" />
-                      <div className="">
-                        <h3 className="text-body-small-400 mb-2 line-clamp-2">
-                          Bose Sport Earbuds - Wireless Earphones - Bluetooth In Ear...
-                        </h3>
-                        <div className="text-body-small-600 text-secondary-500">$1,500</div>
+                {topRatedProductsData?.data?.map((product, idx) => (
+                  <div
+                    key={idx}
+                    className="bg-white rounded-[3px] h-[104] gap-3 border border-gray-100 flex shadow-sm hover:shadow-md transition overflow-hidden p-3"
+                  >
+                    <Image src={product?.images?.[0]} width={80} height={80} alt="Smart TV" />
+                    <div className="">
+                      <h3 className="text-body-small-400 mb-2 line-clamp-2">{product?.name}</h3>
+                      <div className="flex gap-1 items-center mt-6">
+                        <div className="flex gap-[1.5px]">
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                          <Star width={16} height={16} />
+                        </div>
+                        <span className="text-body-tiny-400 text-gray-500">({product?.stars} stars)</span>
+                      </div>
+                      <div className="text-body-small-600 text-secondary-500">
+                        {formatPriceVN(product?.main_price || 0)}
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -250,7 +284,7 @@ export default function HomePage() {
         <div className="h-[472] bg-black"></div>
       </div>
 
-      {isShowQuickView && (
+      {false && (
         <div className="w-screen h-screen fixed top-0 left-0 flex justify-center items-center">
           <div className="absolute top-0 left-0 bg-black opacity-80 w-screen h-screen"></div>
           <div className="relative w-[80%] max-w-[1400] flex gap-14 bg-white z-10 p-10 rounded-sm">
