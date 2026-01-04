@@ -16,7 +16,7 @@ const Product = ({ product, onClick }: { product: Product; onClick: () => void }
   return (
     <>
       <tr key={product.id} className="button hover:bg-gray-50 transition" onClick={onClick}>
-        <td className="px-6 py-4 text-sm text-gray-800">{product.name}</td>
+        <td className="max-w-[300px] px-6 py-4 text-sm text-gray-800">{product.name}</td>
         <td className="px-6 py-4 text-center text-sm text-gray-600">{product?.variants?.length || 0}</td>
         <td className="px-6 py-4 text-center text-sm text-gray-700">{product?.soldCount || 0}</td>
         <td className="px-6 py-4 text-sm text-gray-800 text-center">{inventory || 0}</td>

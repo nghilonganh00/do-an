@@ -7,14 +7,12 @@ import { User } from "./users";
 export interface Shipment extends BaseEntity {
   id: number;
   fullName?: string;
-  companyName?: string;
   address?: string;
-  city?: string;
-  state?: string;
-  zipCode?: string;
-  country?: string;
   phone?: string;
   email?: string;
+  provinceId?: number;
+  districtId?: number;
+  wardCode?: string;
 }
 
 export type orderCoupon = {
@@ -36,8 +34,9 @@ export interface Order extends BaseEntity {
   shipmentId?: number;
   paymentId?: number;
   shipment?: Shipment;
-  payments?: Payment;
+  payment?: Payment;
   orderCoupons?: orderCoupon[];
   orderItems?: OrderItem[];
   user?: User;
+  code?: string;
 }

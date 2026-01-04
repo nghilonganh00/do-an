@@ -7,159 +7,154 @@ import dayjs from "dayjs";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import FeedbackModal from "@/src/features/feedback/components/FeedbackModal";
 import { useState } from "react";
-import { Book } from "lucide-react";
+import { Package, Truck, CheckCircle, Clock } from "lucide-react";
+import { ORDER_STATUS, ORDER_STATUS_LIST } from "@/src/constants";
 
 export default function OrderDetail() {
   const { id } = useParams<{ id: string }>();
-
   const [isOpen, setIsOpen] = useState(false);
+  const { data: order, isLoading } = useGetOrderById(id!);
 
-  const { data: order } = useGetOrderById(id!);
+  if (isLoading) return <div className="p-10 text-center">Đang tải dữ liệu đơn hàng...</div>;
+
+  const currentStatus = order?.status
+    ? ORDER_STATUS_LIST[order.status as ORDER_STATUS]
+    : { name: "Không xác định", color: "#9CA3AF" };
 
   return (
-    <div className="">
-      <div className="p-6 bg-warning-50 flex items-center justify-between">
+    <div className="max-w-7xl mx-auto pb-10">
+      <div className="p-6 bg-orange-50 flex items-center justify-between rounded-t-lg border-b border-orange-100">
         <div>
-          <span className="text-body-xl-400">#96459761</span>
-          <div className="text-body-small-400 text-gray-400">
-            <span>{order?.orderItems?.length || 0} Products</span>
-            <span> • </span>
-            <span>Order Placed in {dayjs(order?.created_at).format("DD MMM, YYYY [at] hh:mm A")}</span>
+          <div className="flex items-center gap-3">
+            <span className="text-xl font-bold text-gray-800">Mã đơn: #{order?.code || id}</span>
+            <span
+              className="px-3 py-1 rounded-full text-xs font-semibold uppercase"
+              style={{ backgroundColor: `${currentStatus.color}20`, color: currentStatus.color }}
+            >
+              {currentStatus.name}
+            </span>
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            <span>{order?.orderItems?.length || 0} Sản phẩm</span>
+            <span className="mx-2">•</span>
+            <span>Đặt lúc: {dayjs(order?.created_at).format("DD/MM/YYYY [vào lúc] HH:mm")}</span>
           </div>
         </div>
 
-        <span className="text-heading-2 text-secondary-500">{formatPriceVN(order?.totalAmount || 0)}</span>
-      </div>
-
-      <div className="mt-6">
-        <div className="px-24 flex items-center justify-between">
-          <div className="h-2 bg-primary-500 w-[25%]"></div>
-          <div className="h-2 bg-primary-100 w-[25%]"></div>
-          <div className="h-2 bg-primary-100 w-[25%]"></div>
-          <div className="h-2 bg-primary-100 w-[25%]"></div>
-        </div>
-        <div className="flex items-center justify-between px-[90px] mt-6">
-          <div className="flex flex-1 flex-col items-center">
-            <Book />
-            <span className="text-body-small-500 mt-3">Order Placed</span>
-          </div>
-          <div className="flex flex-1 flex-col items-center">
-            <Book />
-            <span className="text-body-small-500">Packing</span>
-          </div>
-          <div className="flex flex-1 flex-col items-center">
-            <Book />
-            <span className="text-body-small-500">On The Road</span>
-          </div>
-          <div className="flex flex-1  flex-col items-center">
-            <Book />
-            <span className="text-body-small-500">Delivered</span>
-          </div>
+        <div className="text-right">
+          <div className="text-sm text-gray-400">Tổng thanh toán</div>
+          <span className="text-2xl font-bold text-orange-600">{formatPriceVN(order?.totalAmount || 0)}</span>
         </div>
       </div>
 
-      {/* <div className="mt-8">
-        <span className="text-body-large-500">Order Activity</span>
+      <div className="mt-8 px-6">
+        <div className="relative flex items-center justify-between w-full max-w-4xl mx-auto">
+          <div className="absolute top-1/2 left-0 w-full h-1 bg-gray-100 -translate-y-1/2 z-0"></div>
 
-        <div className="space-y-4 mt-6">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-xs bg-success-50"></div>
-
-            <div className="">
-              <h4>Your order has been delivered. Thank you for shopping at Clicon!</h4>
-              <span>23 Jan, 2021 at 7:32 PM</span>
+          {[
+            { label: "Chờ xác nhận", icon: Clock, active: true },
+            { label: "Đóng gói", icon: Package, active: order?.status !== "READY_TO_PICK" },
+            {
+              label: "Vận chuyển",
+              icon: Truck,
+              active: ["TRANSPORTING", "DELIVERING", "DELIVERED"].includes(order?.status || ""),
+            },
+            { label: "Đã giao", icon: CheckCircle, active: order?.status === "DELIVERED" },
+          ].map((step, index) => (
+            <div key={index} className="relative z-10 flex flex-col items-center group">
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center border-2 transition-all ${
+                  step.active
+                    ? "bg-orange-500 border-orange-500 text-white shadow-lg"
+                    : "bg-white border-gray-200 text-gray-300"
+                }`}
+              >
+                <step.icon size={20} />
+              </div>
+              <span className={`text-xs font-medium mt-2 ${step.active ? "text-gray-900" : "text-gray-400"}`}>
+                {step.label}
+              </span>
             </div>
-          </div>
-
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-xs bg-success-50"></div>
-
-            <div className="">
-              <h4>Your order has been delivered. Thank you for shopping at Clicon!</h4>
-              <span>23 Jan, 2021 at 7:32 PM</span>
-            </div>
-          </div>
+          ))}
         </div>
-      </div> */}
+      </div>
 
-      <div className="px-6 py-5 mt-8 w-full border border-gray-100">
-        <h4 className="text-body-large-500">Product ({order?.orderItems?.length || 0})</h4>
+      <div className="px-6 py-5 mt-10 w-full border border-gray-100 rounded-lg shadow-sm">
+        <h4 className="text-lg font-bold text-gray-800 mb-4 text-left">
+          Danh sách sản phẩm ({order?.orderItems?.length || 0})
+        </h4>
 
-        <table className="w-full border border-gray-200 rounded-md overflow-hidden mt-5">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-4 py-2 text-left">Product</th>
-              <th className="px-4 py-2 text-center">Price</th>
-              <th className="px-4 py-2 text-center">Quantity</th>
-              <th className="px-4 py-2 text-right">Sub Total</th>
-              <th className="px-4 py-2 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {order?.orderItems?.map((item) => {
-              return (
-                <tr key={item.id} className="border-t border-gray-200">
-                  <td className="px-4 py-2 flex items-center gap-3">
-                    <Image
-                      src={item?.productVariant?.thumbnail || ""}
-                      alt="Smart tv"
-                      width={72}
-                      height={72}
-                      style={{ borderRadius: "8px" }}
-                    />
-                    <span>{item?.productVariant?.product?.name || ""}</span>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-50 text-gray-600 uppercase text-xs">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold">Sản phẩm</th>
+                <th className="px-4 py-3 text-center font-semibold">Đơn giá</th>
+                <th className="px-4 py-3 text-center font-semibold">Số lượng</th>
+                <th className="px-4 py-3 text-right font-semibold">Thành tiền</th>
+                <th className="px-4 py-3 text-right font-semibold">Thao tác</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {order?.orderItems?.map((item) => (
+                <tr key={item.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-4 py-4 flex items-center gap-4">
+                    <div className="relative w-16 h-16 flex-shrink-0">
+                      <Image
+                        src={item?.productVariant?.thumbnail || "/placeholder-img.png"}
+                        alt={item?.productVariant?.product?.name || "Product"}
+                        fill
+                        className="object-cover rounded-md border border-gray-100"
+                      />
+                    </div>
+                    <span className="font-medium text-gray-700 max-w-[250px] line-clamp-2 text-left">
+                      {item?.productVariant?.product?.name || "Sản phẩm không tên"}
+                    </span>
                   </td>
-                  <td className="px-4 py-2 text-center">{formatPriceVN(item?.productVariant?.price || 0)}</td>
-                  <td className="px-4 py-2 text-center">
-                    <span>{item?.quantity || 0}</span>
+                  <td className="px-4 py-4 text-center text-gray-600">
+                    {formatPriceVN(item?.productVariant?.price || 0)}
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-4 text-center font-medium text-gray-800">x{item?.quantity || 0}</td>
+                  <td className="px-4 py-4 text-right font-semibold text-gray-900">
                     {formatPriceVN((item?.quantity || 0) * (item?.productVariant?.price || 0))}
                   </td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-4 text-right">
                     <button
                       onClick={() => setIsOpen(true)}
-                      className="px-4 py-2 border border-gray-100 rounded cursor-pointer"
+                      className="text-xs px-3 py-1.5 border border-gray-200 rounded-md hover:bg-gray-100 hover:text-orange-600 transition-all font-medium"
                     >
-                      Add Feedback
+                      Gửi đánh giá
                     </button>
                   </td>
                 </tr>
-              );
-            })}
-          </tbody>
-        </table>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <div className="text-body-large-500 mt-6">Discount: {formatPriceVN(order?.discount || 0)}</div>
-      </div>
-
-      <div className="flex items-center">
-        <div className="flex-1 px-6 py-8 border border-gray-100">
-          <h3 className="text-body-large-500">Billing Address</h3>
-          <div className="mt-6">
-            <span className="text-body-small-500">Kevin Gilbert</span>
-            <p className="text-body-small-400 text-gray-600">
-              East Tejturi Bazar, Word No. 04, Road No. 13/x, House no. 1320/C, Flat No. 5D, Dhaka - 1200, Bangladesh
-            </p>
-            <div>
-              Phone Number:<span> +1-202-555-0118</span>
+        <div className="flex justify-end mt-6 pt-6 border-t border-gray-100">
+          <div className="space-y-2 text-right">
+            <div className="text-gray-500">
+              Giảm giá: <span className="text-gray-900">-{formatPriceVN(order?.discount || 0)}</span>
             </div>
-            <div>
-              Email:<span> kevin.gilbert@gmail.com</span>
+            <div className="text-lg font-bold">
+              Thành tiền: <span className="text-orange-600">{formatPriceVN(order?.totalAmount || 0)}</span>
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="flex-1 px-6 py-8 border border-gray-100">
-          <h3 className="text-body-large-500">Address</h3>
-          <div className="mt-6">
-            <span className="text-body-small-500">{order?.shipment?.fullName || ""}</span>
-            <p className="text-body-small-400 text-gray-600">{order?.shipment?.address || ""}</p>
-            <div>
-              Phone Number:<span> {order?.shipment?.phone || ""}</span>
-            </div>
-            <div>
-              Email:<span> {order?.shipment?.email || ""}</span>
+      <div className="grid grid-cols-1 md:grid-cols-2 mt-8 rounded-lg overflow-hidden border border-gray-100">
+        <div className="p-8 bg-gray-50/30 text-left">
+          <h3 className="text-lg font-bold text-gray-800 mb-6">Địa chỉ giao hàng</h3>
+          <div className="space-y-3">
+            <div className="font-bold text-gray-700 text-base">{order?.shipment?.fullName || "Người nhận"}</div>
+            <p className="text-sm text-gray-500 leading-relaxed">
+              {order?.shipment?.address || "Chưa có địa chỉ cụ thể"}
+            </p>
+            <div className="text-sm pt-2">
+              <span className="text-gray-400">Số điện thoại:</span>{" "}
+              <span className="text-gray-700 font-medium">{order?.shipment?.phone || "N/A"}</span>
             </div>
           </div>
         </div>

@@ -3,7 +3,7 @@
 import { useGetMyOrderHistory } from "@/src/features/order/hooks/useGetMyOrderHistory";
 import { useRouter } from "next/navigation";
 import dayjs from "dayjs";
-import { ORDER_STATUS } from "@/src/constants";
+import { ORDER_STATUS, PAYMENT_STATUS, PAYMENT_STATUS_LIST } from "@/src/constants";
 
 export default function OrderHistory() {
   const router = useRouter();
@@ -35,12 +35,24 @@ export default function OrderHistory() {
               >
                 <td className="px-6 py-4">{item?.id}</td>
 
-                <td
-                  className={`px-6 py-4 text-right ${
-                    item?.status === ORDER_STATUS.COMPLETED ? "text-success-500" : "text-primary-500"
-                  }`}
-                >
-                  {item?.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : ""}
+                <td className={`px-6 py-4 text-right`}>
+                  {(() => {
+                    const statusConfig = PAYMENT_STATUS_LIST[item?.payment?.status as PAYMENT_STATUS];
+
+                    if (statusConfig) {
+                      return (
+                        <span className="font-medium" style={{ color: statusConfig.color }}>
+                          {statusConfig.name}
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span className="font-medium text-gray-400">
+                        {item?.status ? `Đang chờ thanh toán` : "Chưa cập nhật"}
+                      </span>
+                    );
+                  })()}
                 </td>
 
                 <td className="px-6 py-4 text-right">{dayjs(item?.created_at).format("DD/MM/YYYY HH:mm")}</td>
@@ -52,7 +64,7 @@ export default function OrderHistory() {
                     className="text-secondary-500 hover:underline"
                     onClick={(e) => {
                       e.stopPropagation();
-                      router.push("/dashboard/order-detail");
+                      router.push("/dashboard/orders/" + item?.id);
                     }}
                   >
                     Xem chi tiết

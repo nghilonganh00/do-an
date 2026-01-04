@@ -15,6 +15,8 @@ import { useGetAllProvinces } from "@/src/features/address/hooks/useGetAllProvin
 import { useGetAllDistrictsByProvince } from "@/src/features/address/hooks/useGetAllDistrictsByProvince";
 import { useGetAllWardsByDistrict } from "@/src/features/address/hooks/useGetAllWardsByDistrict";
 import Dropdown, { DropdownItem } from "@/src/components/common/input/Dropdown";
+import { useCaculateFee } from "@/src/features/shipment/hooks/useCaculateFee";
+import { Shipment } from "@/src/types/order";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -72,6 +74,10 @@ export default function CheckoutPage() {
   const wardValue = wardOptions.find((option) => option.value === billing.wardCode?.toString());
 
   const { data: createOrderData, mutateAsync: createOrder } = useCreateOrder();
+  const { data: shipmentFee } = useCaculateFee({
+    wardCode: billing.wardCode!,
+    districtId: billing.districtId!,
+  } as Shipment);
 
   const handlePlaceOrder = async () => {
     if (isSubmitting || !order || !billing?.provinceId || !billing?.districtId) return;
@@ -116,10 +122,9 @@ export default function CheckoutPage() {
         address: user.address || "",
         email: user.email || "",
         phone: user.phone || "",
-        country: user.country || "",
-        state: user.state || "",
-        city: user.city || "",
-        zipCode: user.zipCode || "",
+        provinceId: user.provinceId || null,
+        districtId: user.districtId || null,
+        wardCode: user.wardCode || null,
       }));
     }
   }, [user]);
@@ -133,7 +138,7 @@ export default function CheckoutPage() {
       {!isPlacedOrder ? (
         <div className="max-w-[1320px] mx-auto py-[72px] grid grid-cols-12 gap-6">
           <div className="col-span-8">
-            <h3 className="text-body-large-500">Thông tin thanh toán</h3>
+            <h3 className="text-body-large-500">Thông tin đặt hàng</h3>
             <div className="grid grid-cols-12 gap-4 mt-6">
               <div className="col-span-6 flex flex-col justify-end">
                 <label>Họ và tên</label>
@@ -221,10 +226,7 @@ export default function CheckoutPage() {
                     height={64}
                   />
                   <div>
-                    <h4 className="text-body-small-400">
-                      {item?.variant?.product?.name} (
-                      {item?.variant?.variantValues?.map((value) => value?.optionValue?.value).join(", ")})
-                    </h4>
+                    <h4 className="text-body-small-400">{item?.variant?.product?.name}</h4>
 
                     <div className="mt-2">
                       <span className="text-body-small-400 text-gray-600">{item.quantity} x</span>
@@ -245,7 +247,7 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-center">
                 <span className="text-body-small-400 text-gray-600">Phí vận chuyển</span>
-                <span className="text-body-small-500">{formatPriceVN(Number(order.shipping.toFixed(2)))}</span>
+                <span className="text-body-small-500">{formatPriceVN(shipmentFee?.total ?? 0)}</span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -255,7 +257,9 @@ export default function CheckoutPage() {
 
               <div className="flex justify-between items-center mt-4">
                 <span className="text-body-medium-400 text-gray-900">Tổng cộng</span>
-                <span className="text-body-small-600">{formatPriceVN(Number(order.total.toFixed(2)))}</span>
+                <span className="text-body-small-600">
+                  {formatPriceVN(Number((order.total + (shipmentFee?.total || 0)).toFixed(2)))}
+                </span>
               </div>
 
               <button

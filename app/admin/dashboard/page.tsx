@@ -4,9 +4,21 @@ import { useGetAllOrdersForAdmin } from "@/src/features/order/hooks/useGetAllOrd
 import { useGetAllPaymentsForAdmin } from "@/src/features/payments/hooks/useAllPaymentsForAdmin";
 import { UseGetAllBestSellingProductVariantOptions } from "@/src/features/products/hooks/useGetAllBestSellingProductVariant";
 import { Order } from "@/src/types/order";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
 import { useMemo } from "react";
 import { LineChart as ReLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
+
+const paymentStatusConfig: Record<string, { label: string; className: string }> = {
+  pending: {
+    label: "Đang chờ",
+    className: "bg-yellow-100 text-yellow-700",
+  },
+  paid: {
+    label: "Đã thanh toán",
+    className: "bg-green-100 text-green-700",
+  },
+};
 
 const DashboardPage = () => {
   const { data: payments } = useGetAllPaymentsForAdmin({ params: { limit: 10 } });
@@ -107,22 +119,29 @@ const DashboardPage = () => {
           <table className="min-w-full mt-5">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tên</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Ngày</th>
-                <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Số tiền</th>
-                <th className="px-6 py-3 text-right text-sm font-semibold text-gray-700">Trạng thái</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Tên</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Ngày</th>
+                <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700">Số tiền</th>
+                <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700">Trạng thái</th>
               </tr>
             </thead>
 
             <tbody className="divide-y divide-gray-200">
               {payments?.map((payment) => (
                 <tr key={payment.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-sm text-gray-800">{payment.user?.name}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    {dayjs(payment?.created_at).format("HH:MM, DD/MM/YYYY")}
+                  <td className="px-4 py-4 text-sm text-gray-800">{payment.user?.name}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">
+                    {dayjs(payment?.created_at).format("HH:MM, DD/MM")}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.amount}</td>
-                  <td className="px-6 py-4 text-sm text-gray-600">{payment.status}</td>
+                  <td className="px-4 py-4 text-sm text-gray-600">{formatPriceVN(payment?.amount || 0)}</td>
+                  <td className="px-4 py-4 text-right">
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium
+                      ${paymentStatusConfig[payment?.status || "pending"]?.className ?? "bg-gray-100 text-gray-600"}`}
+                    >
+                      {paymentStatusConfig[payment?.status || "pending"]?.label ?? payment.status}
+                    </span>
+                  </td>
                 </tr>
               ))}
             </tbody>

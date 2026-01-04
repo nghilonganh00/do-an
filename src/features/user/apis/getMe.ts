@@ -2,11 +2,7 @@ import { supabase } from "@/src/lib/supabaseClient";
 import { User } from "@/src/types/users";
 
 export const getMe = async (): Promise<User | null> => {
-  const { data, error: userError } = await supabase
-    .from("users")
-    .select(`*`)
-    .eq("id", 2)
-    .single();
+  const { data, error: userError } = await supabase.from("users").select(`*`).eq("id", 2).single();
 
   const { count: totalOrders, error: orderError } = await supabase
     .from("orders")
@@ -15,13 +11,10 @@ export const getMe = async (): Promise<User | null> => {
   const { count: completedOrders, error: completedOrderError } = await supabase
     .from("orders")
     .select("*", { count: "exact", head: true })
-    .eq("status", "completed");
+    .eq("status", "delivered");
 
   if (userError || orderError || completedOrderError) {
-    console.error(
-      "Fetch user error:",
-      userError || orderError || completedOrderError
-    );
+    console.error("Fetch user error:", userError || orderError || completedOrderError);
     return null;
   }
 

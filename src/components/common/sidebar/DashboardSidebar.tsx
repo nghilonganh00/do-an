@@ -1,6 +1,6 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Stack } from "../../icons/Stack";
 import Link from "next/link";
 import { StoreFront } from "../../icons/StoreFront";
@@ -12,11 +12,16 @@ const menuItems = [
   { name: "Giỏ hàng", icon: Stack, path: "/shopping-cart", active: false },
   { name: "Danh sách yêu thích", icon: Stack, path: "/wishlist", active: false },
   { name: "Cài đặt", icon: Stack, path: "/dashboard/setting", active: false },
-  { name: "Đăng xuất", icon: Stack, path: "/logout", active: false },
 ];
 
 export default function DashboardSidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const onLogout = () => {
+    localStorage.removeItem("accessToken");
+    router.push("/login");
+  };
 
   return (
     <div className="w-[264px] border border-gray-100 py-4">
@@ -32,6 +37,12 @@ export default function DashboardSidebar() {
           </Link>
         );
       })}
+      <div onClick={onLogout}>
+        <div className={`flex items-center px-6 py-2.5 gap-3 cursor-pointer`}>
+          <Stack color={"var(--color-gray-600)"} />
+          <span className={`text-body-small-400 ${"text-gray-600"}`}>Đăng xuất</span>
+        </div>
+      </div>
     </div>
   );
 }

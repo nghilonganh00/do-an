@@ -2,18 +2,17 @@
 
 import { Line } from "@/src/components/common/Line";
 import { Rock } from "@/src/components/icons/Rock";
-import { ORDER_STATUS } from "@/src/constants";
+import { ORDER_STATUS, ORDER_STATUS_LIST, PAYMENT_STATUS, PAYMENT_STATUS_LIST } from "@/src/constants";
 import { useGetMyOrderHistory } from "@/src/features/order/hooks/useGetMyOrderHistory";
 import { useGetMe } from "@/src/features/user/hooks/useGetMe";
+import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
-  const router = useRouter();
-
   const { data: user } = useGetMe();
   const { data } = useGetMyOrderHistory();
+  const { data: orders } = data || {};
 
   return (
     <div className="flex-1">
@@ -37,7 +36,7 @@ export default function DashboardPage() {
 
           <div className="px-6 pb-6">
             <div className="flex items-center gap-4 pt-[22px] pb-6">
-              <Image src={user?.avatar || ""} width={48} height={48} alt="Ảnh đại diện" />
+              {user?.avatar && <Image src={user.avatar} width={48} height={48} alt="Ảnh đại diện" />}
 
               <div>
                 <h4 className="text-body-large-500">{user?.name}</h4>
@@ -102,36 +101,62 @@ export default function DashboardPage() {
       <div className="border flex-1 border-gray-100 mt-6">
         <div className="flex items-center justify-between">
           <h3 className="text-label-3 px-6 py-4 uppercase">Đơn hàng gần đây</h3>
-          <button className="text-body-small-600 text-primary-500">Xem tất cả</button>
+          <button className="text-body-small-600 text-primary-500 px-6">Xem tất cả</button>
         </div>
         <table className="w-full border border-gray-50 rounded-md overflow-hidden">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-6 py-4 text-left text-label-4 text-gray-700">Mã đơn hàng</th>
+              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Mã đơn hàng</th>
+              <th className="px-6 py-4 text-right text-label-4 text-gray-700 uppercase">Thanh toán</th>
               <th className="px-6 py-4 text-right text-label-4 text-gray-700 uppercase">Trạng thái</th>
               <th className="px-6 py-4 text-right text-label-4 text-gray-700 uppercase">Ngày đặt</th>
               <th className="px-6 py-4 text-right text-label-4 text-gray-700 uppercase">Tổng tiền</th>
-              <th className="px-6 py-4 text-right text-label-4 text-gray-700 uppercase">Thao tác</th>
             </tr>
           </thead>
           <tbody>
-            {data?.data?.map((item, index) => (
-              <tr key={index} className="border-t border-gray-200">
+            {orders?.map((item, index) => (
+              <tr key={index} className="border-t border-gray-200 hover:cursor-pointer hover:bg-gray-100">
                 <td className="px-6 py-4">{item?.id}</td>
-                <td
-                  className={`px-6 py-4 text-right ${
-                    item?.status === ORDER_STATUS.COMPLETED ? "text-success-500" : "text-primary-500"
-                  }`}
-                >
-                  {item?.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : ""}
+                <td className="px-6 py-4 text-right">
+                  {(() => {
+                    const statusConfig = PAYMENT_STATUS_LIST[item?.payment?.status as PAYMENT_STATUS];
+
+                    if (statusConfig) {
+                      return (
+                        <span className="font-medium" style={{ color: statusConfig.color }}>
+                          {statusConfig.name}
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span className="font-medium text-gray-400">
+                        {item?.status ? `Đang chờ thanh toán` : "Chưa cập nhật"}
+                      </span>
+                    );
+                  })()}
+                </td>
+                <td className="px-6 py-4 text-right">
+                  {(() => {
+                    const statusConfig = ORDER_STATUS_LIST[item?.status as ORDER_STATUS];
+
+                    if (statusConfig) {
+                      return (
+                        <span className="font-medium" style={{ color: statusConfig.color }}>
+                          {statusConfig.name}
+                        </span>
+                      );
+                    }
+
+                    return (
+                      <span className="font-medium text-gray-400 italic">
+                        {item?.status ? `Đang chuẩn bị` : "Chưa cập nhật"}
+                      </span>
+                    );
+                  })()}
                 </td>
                 <td className="px-6 py-4 text-right">{dayjs(item?.created_at).format("DD/MM/YYYY HH:mm")}</td>
-                <td className="px-6 py-4 text-right">{item?.totalAmount}</td>
-                <td className="px-6 py-4 text-right">
-                  <button className="text-secondary-500" onClick={() => router.push("/dashboard/order-detail")}>
-                    Xem chi tiết
-                  </button>
-                </td>
+                <td className="px-6 py-4 text-right">{formatPriceVN(item?.totalAmount || 0)}</td>
               </tr>
             ))}
           </tbody>

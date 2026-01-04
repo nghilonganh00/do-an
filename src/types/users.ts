@@ -1,10 +1,11 @@
-import { Order, Payment } from "./order";
+import { Order } from "./order";
+import { Payment } from "./payment";
 
 export type User = {
   id: number;
   provinceId?: number;
   districtId?: number;
-  wardId?: number;
+  wardCode?: string;
   name?: string;
   avatar?: string;
   email?: string;
@@ -12,10 +13,6 @@ export type User = {
   phone?: string;
   companyName?: string;
   address?: string;
-  country?: string;
-  state?: string;
-  city?: string;
-  zipCode?: string;
   token: string;
   created_at?: string;
   orderSummary?: {
