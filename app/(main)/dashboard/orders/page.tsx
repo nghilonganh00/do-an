@@ -55,7 +55,9 @@ export default function OrderHistory() {
                   })()}
                 </td>
 
-                <td className="px-6 py-4 text-right">{dayjs(item?.created_at).format("DD/MM/YYYY HH:mm")}</td>
+                <td className="px-6 py-4 text-right">
+                  {dayjs(item?.created_at).add(7, "hour").format("DD/MM/YYYY HH:mm")}
+                </td>
 
                 <td className="px-6 py-4 text-right">{item?.totalAmount}</td>
 

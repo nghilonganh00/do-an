@@ -44,6 +44,6 @@ export const createOrder = async (
     return response.data.data ?? null;
   } catch (err) {
     console.error("Unexpected error:", err);
-    return null;
+    throw new Error(err.message);
   }
 };

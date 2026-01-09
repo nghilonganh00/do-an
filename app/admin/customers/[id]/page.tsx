@@ -1,15 +1,32 @@
 "use client";
 
+import { useGetAllDistrictsByProvince } from "@/src/features/address/hooks/useGetAllDistrictsByProvince";
+import { useGetAllProvinces } from "@/src/features/address/hooks/useGetAllProvinces";
+import { useGetAllWardsByDistrict } from "@/src/features/address/hooks/useGetAllWardsByDistrict";
 import { useGetCustomerByIdForAdmin } from "@/src/features/customer/hooks/useGetCustomerByIdForAdmin";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import { timeAgoRounded } from "@/src/utils/timeAgoRounded";
 import dayjs from "dayjs";
 import { useParams } from "next/navigation";
+import { useMemo } from "react";
 
 const CustomerDetailPage = () => {
   const { id } = useParams();
 
   const { data: customer } = useGetCustomerByIdForAdmin(Number(id));
+
+  const { data: provinces } = useGetAllProvinces();
+  const { data: districts } = useGetAllDistrictsByProvince(customer?.provinceId || 0);
+  const { data: wards } = useGetAllWardsByDistrict(customer?.districtId || 0);
+
+  const province = useMemo(() => provinces?.find((p) => p.ProvinceID === customer?.provinceId), [customer, provinces]);
+  const district = useMemo(() => districts?.find((d) => d.DistrictID === customer?.districtId), [customer, districts]);
+  const ward = useMemo(
+    () => wards?.find((w) => w.WardCode === customer?.wardCode && w.DistrictID !== 0),
+    [customer, wards]
+  );
+
+  console.log("province: ", province);
 
   return (
     <div className="px-10 py-6">
@@ -31,7 +48,7 @@ const CustomerDetailPage = () => {
               <div>
                 <div className="font-semibold">{customer?.name || ""}</div>
                 <div className="text-sm text-[#5A607F]">
-                  {customer?.address}, {customer?.state}, {customer?.city}, {customer?.country}
+                  {customer?.address}, {ward?.WardName}, {district?.DistrictName}, {province?.ProvinceName}
                 </div>
                 <div className="text-sm text-[#5A607F]">{customer?.orders?.length} đơn hàng</div>
                 <div className="text-sm text-[#5A607F]">Khách hàng từ {timeAgoRounded(customer?.created_at || "")}</div>
@@ -58,7 +75,7 @@ const CustomerDetailPage = () => {
                   <tr key={item.id} className="hover:bg-gray-50 transition">
                     <td className="px-6 py-4 text-sm text-gray-800">{item.id}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">
-                      {dayjs(item.created_at).format("HH:mm, DD-MM-YYYY")}
+                      {dayjs(item.created_at).add(7, "hour").format("HH:mm, DD-MM-YYYY")}
                     </td>
                     <td className="px-6 py-4 text-sm text-gray-600">{item.status}</td>
 
@@ -77,9 +94,7 @@ const CustomerDetailPage = () => {
           <div className="font-semibold">Tổng quan</div>
 
           <div className="mt-6 text-[#A1A7C4]">Địa chỉ</div>
-          <div className="text-[#5A607F]">
-            {`${customer?.address}, ${customer?.state}, ${customer?.city}, ${customer?.country}`}
-          </div>
+          <div className="text-[#5A607F]">{`${customer?.address}, ${ward?.WardName}, ${district?.DistrictName}, ${province?.ProvinceName}`}</div>
 
           <div className="mt-6 text-[#A1A7C4]">Email</div>
           <div className="text-[#5A607F]">{customer?.email}</div>
@@ -87,7 +102,7 @@ const CustomerDetailPage = () => {
           <div className="mt-6 text-[#A1A7C4]">Số điện thoại</div>
           <div className="text-[#5A607F]">{customer?.phone}</div>
 
-          <button className="text-[#F0142F] mt-[50px]">Xóa khách hàng</button>
+          {/* <button className="text-[#F0142F] mt-[50px]">Xóa khách hàng</button> */}
         </div>
       </div>
     </div>

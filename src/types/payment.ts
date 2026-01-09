@@ -8,6 +8,7 @@ export interface Payment extends BaseEntity {
   amount?: number;
   method?: string;
   status?: PAYMENT_STATUS;
+  url?: string;
   transactionId?: number;
   paidAt?: string;
   user?: User;

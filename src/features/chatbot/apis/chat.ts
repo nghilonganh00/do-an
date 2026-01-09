@@ -1,7 +1,7 @@
-import axios from "axios";
+import axiosInstance from "@/src/services/axiosInstance";
 
 const chat = async (message: string): Promise<any> => {
-  const response = await axios.post(process.env.NEXT_PUBLIC_API_URL + "/chatbot", { message });
+  const response = await axiosInstance.post("/chatbot", { message });
 
   return response.data.data ?? [];
 };

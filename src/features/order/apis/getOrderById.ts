@@ -10,7 +10,7 @@ export const getOrderById = async (id: string): Promise<Order | null> => {
       shipment:shipmentId (*),
       orderItems (*, productVariant:productVariantId (*, product:productId (*))),
       orderCoupons (*),
-      payments (*)
+      payment:payments(*)
     `
     )
     .eq("id", id)

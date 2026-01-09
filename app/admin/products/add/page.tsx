@@ -247,7 +247,7 @@ const AddProductPage = () => {
 
               {/* Meta Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả Meta (cho AI/SEO)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Mô tả Meta (cho AI)</label>
                 <Controller
                   name="meta_description"
                   control={control}
@@ -256,7 +256,7 @@ const AddProductPage = () => {
                       {...field}
                       rows={3}
                       className="w-full border border-gray-200 rounded-lg p-3 outline-none focus:border-[#1E5EFF] focus:ring-2 focus:ring-blue-100 text-sm resize-none"
-                      placeholder="Nhập chi tiết để hỗ trợ SEO hoặc AI..."
+                      placeholder="Nhập chi tiết để hỗ trợ AI..."
                     />
                   )}
                 />

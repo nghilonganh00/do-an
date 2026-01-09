@@ -27,7 +27,7 @@ const CouponDashboardScreen = () => {
               <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Tên mã giảm giá</th>
               <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Đã sử dụng</th>
               <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Thời gian</th>
-              <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Trạng thái</th>
+              {/* <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Trạng thái</th> */}
               <th className="px-6 py-4 text-left text-label-4 text-gray-700 uppercase">Giá trị</th>
             </tr>
           </thead>
@@ -57,23 +57,23 @@ const CouponDashboardScreen = () => {
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">{item?.orderCoupons?.length || 0}</td>
+                  <td className="px-6 py-4">{item?.usedCount || 0}</td>
 
                   <td className="px-6 py-4">
                     <div className="space-y-1">
                       <div className="text-sm text-gray-600">
                         <span className="font-medium text-gray-800">Từ:</span>{" "}
-                        {dayjs(item?.validFrom).format("HH:mm, DD/MM/YYYY")}
+                        {dayjs(item?.validFrom).add(7, "hour").format("HH:mm, DD/MM/YYYY")}
                       </div>
 
                       <div className="text-sm text-gray-600">
                         <span className="font-medium text-gray-800">Đến:</span>{" "}
-                        {dayjs(item?.validTo).format("HH:mm, DD/MM/YYYY")}
+                        {dayjs(item?.validTo).add(7, "hour").format("HH:mm, DD/MM/YYYY")}
                       </div>
                     </div>
                   </td>
 
-                  <td className="px-6 py-4">
+                  {/* <td className="px-6 py-4">
                     <div
                       className={`inline-block px-2 py-1 ${
                         item?.active ? "text-success-500 bg-success-50" : "text-primary-500 bg-orange-50"
@@ -81,7 +81,7 @@ const CouponDashboardScreen = () => {
                     >
                       {item?.active ? "Đang hoạt động" : "Hết hạn"}
                     </div>
-                  </td>
+                  </td> */}
 
                   <td className="px-6 py-4 text-left">
                     {item?.discountType === DISCOUNT_TYPE.PERCENT

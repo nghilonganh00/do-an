@@ -10,7 +10,7 @@ export type District = {
 };
 
 export type Ward = {
-  WardCode: number;
+  WardCode: string;
   ProvinceID: number;
   DistrictID: number;
   WardName: string;

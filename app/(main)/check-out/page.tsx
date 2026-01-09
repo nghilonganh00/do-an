@@ -73,7 +73,7 @@ export default function CheckoutPage() {
   const districtValue = districtOptions.find((option) => option.value === billing.districtId?.toString());
   const wardValue = wardOptions.find((option) => option.value === billing.wardCode?.toString());
 
-  const { data: createOrderData, mutateAsync: createOrder } = useCreateOrder();
+  const { data: createOrderData, mutateAsync: createOrder, error: createOrderError } = useCreateOrder();
   const { data: shipmentFee } = useCaculateFee({
     wardCode: billing.wardCode!,
     districtId: billing.districtId!,
@@ -104,6 +104,7 @@ export default function CheckoutPage() {
       // setPlacedOrder(true);
     } catch (error) {
       console.error("Failed to place order:", error);
+      alert("Failed to place order: ", error.message);
     } finally {
       setSubmitting(false);
     }

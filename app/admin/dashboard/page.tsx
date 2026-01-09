@@ -23,7 +23,7 @@ const paymentStatusConfig: Record<string, { label: string; className: string }> 
 const DashboardPage = () => {
   const { data: payments } = useGetAllPaymentsForAdmin({ params: { limit: 10 } });
 
-  const { data: products } = UseGetAllBestSellingProductVariantOptions({ params: { duration: 30 } });
+  const { data: products } = UseGetAllBestSellingProductVariantOptions({ params: { limit: 10, duration: 30 } });
 
   const { data: orders } = useGetAllOrdersForAdmin({
     params: {
@@ -31,7 +31,7 @@ const DashboardPage = () => {
       page: 1,
       sortBy: "created_at",
       sortDir: "asc",
-      duration: 1,
+      duration: 30,
     },
   });
 
@@ -57,42 +57,10 @@ const DashboardPage = () => {
     <div className="px-10 py-6 ">
       <span className="text-body-xl-600">Tổng quan</span>
 
-      <div className="flex justify-between mt-6">
-        <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
-          <span className="text-body-medium-600">$10.540</span>
-          <span>Tổng doanh thu</span>
-          <span className="text-[#06A561]">22.45%</span>
-        </div>
-
-        <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
-          <span className="text-body-medium-600">$10.540</span>
-          <span>Tổng doanh thu</span>
-          <span className="text-[#06A561]">22.45%</span>
-        </div>
-
-        <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
-          <span className="text-body-medium-600">$10.540</span>
-          <span>Tổng doanh thu</span>
-          <span className="text-[#06A561]">22.45%</span>
-        </div>
-
-        <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
-          <span className="text-body-medium-600">$10.540</span>
-          <span>Tổng doanh thu</span>
-          <span className="text-[#06A561]">22.45%</span>
-        </div>
-
-        <div className="flex flex-col bg-white rounded-md px-11 py-1.5">
-          <span className="text-body-medium-600">$10.540</span>
-          <span>Tổng doanh thu</span>
-          <span className="text-[#06A561]">22.45%</span>
-        </div>
-      </div>
-
       <div className="p-7 bg-white mt-7">
         <div className="flex items-center justify-between">
           <span className="text-body-medium-600">Đơn hàng theo thời gian</span>
-          <span>12 giờ gần nhất</span>
+          <span>1 ngày gần nhất</span>
         </div>
 
         <div className="w-full h-72 p-4 bg-white rounded-xl shadow">
@@ -131,7 +99,7 @@ const DashboardPage = () => {
                 <tr key={payment.id} className="hover:bg-gray-50 transition">
                   <td className="px-4 py-4 text-sm text-gray-800">{payment.user?.name}</td>
                   <td className="px-4 py-4 text-sm text-gray-600">
-                    {dayjs(payment?.created_at).format("HH:MM, DD/MM")}
+                    {dayjs(payment?.created_at).add(7, "hour").format("HH:MM, DD/MM")}
                   </td>
                   <td className="px-4 py-4 text-sm text-gray-600">{formatPriceVN(payment?.amount || 0)}</td>
                   <td className="px-4 py-4 text-right">

@@ -1,11 +1,10 @@
 "use client";
 
 import { QueryOptions, useQuery } from "@tanstack/react-query";
-import getAllPaymentsForAdmin from "../apis/getAllPaymentsForAdmin";
-import { Params } from "@/src/types";
+import getAllPaymentsForAdmin, { PaymentParams } from "../apis/getAllPaymentsForAdmin";
 
 type UseGetAllPaymentsForAdminOptions = {
-  params?: Params;
+  params?: PaymentParams;
   queryConfig?: QueryOptions<Awaited<ReturnType<typeof getAllPaymentsForAdmin>>, Error>;
 };
 

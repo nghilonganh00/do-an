@@ -2,30 +2,32 @@
 
 import Dropdown, { DropdownItem } from "@/src/components/common/input/Dropdown";
 import { Search } from "@/src/components/icons";
-import { ORDER_STATUS, ORDER_STATUS_LIST, PAYMENT_STATUS } from "@/src/constants";
-import { useGetAllOrders } from "@/src/features/order/hooks/useGetAllOrder";
-import { Params } from "@/src/types";
+import { PAYMENT_STATUS, PAYMENT_STATUS_LIST } from "@/src/constants";
+import { useGetAllPaymentsForAdmin } from "@/src/features/payments/hooks/useAllPaymentsForAdmin";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
-import { useState } from "react";
+import React, { useState } from "react";
 
-const ORDER_STATUS_OPTIONS: DropdownItem[] = Object.values(ORDER_STATUS).map((status) => ({
-  label: ORDER_STATUS_LIST[status].name,
-  value: status,
-}));
+const PAYMENT_STATUS_OPTIONS: DropdownItem[] = [
+  {
+    label: "Tất cả",
+    value: "",
+  },
+  {
+    label: "Chưa thanh toán",
+    value: PAYMENT_STATUS.PENDING,
+  },
+  {
+    label: "Thanh toán",
+    value: PAYMENT_STATUS.PAID,
+  },
+];
 
-const OrderManagementPage = () => {
-  const [status, setStatus] = useState<ORDER_STATUS | null>(null);
+const PaymentPage = () => {
+  const [status, setStatus] = useState<PAYMENT_STATUS | null>(null);
   const [search, setSearch] = useState("");
 
-  const { data, isPending, error } = useGetAllOrders({
-    page: 1,
-    limit: 10,
-    sortBy: "created_at",
-    sortDir: "desc",
-    status,
-    search,
-  } as Params);
+  const { data, isPending, error } = useGetAllPaymentsForAdmin({ params: { status } });
 
   return (
     <div className="px-10 py-6">
@@ -35,8 +37,8 @@ const OrderManagementPage = () => {
         <div className="flex gap-3">
           <div className="w-[180px] h-[48px]">
             <Dropdown
-              options={ORDER_STATUS_OPTIONS}
-              onChange={(DropdownItem) => setStatus(DropdownItem.value as ORDER_STATUS)}
+              options={PAYMENT_STATUS_OPTIONS}
+              onChange={(DropdownItem) => setStatus(DropdownItem.value as PAYMENT_STATUS)}
             />
           </div>
 
@@ -59,24 +61,23 @@ const OrderManagementPage = () => {
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Ngày tạo</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Khách hàng</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Trạng thái thanh toán</th>
-              <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Trạng thái đơn hàng</th>
               <th className="px-6 py-3 text-left text-sm font-semibold text-gray-700">Tổng tiền</th>
             </tr>
           </thead>
 
           <tbody className="divide-y divide-gray-200 bg-white">
-            {data?.data?.map((order) => {
-              const paymentStatus = order?.payment?.status;
+            {data?.map((payment) => {
+              const paymentStatus = payment?.status;
 
               return (
-                <tr key={order.id} className="hover:bg-gray-50 transition">
-                  <td className="px-6 py-4 text-left text-sm text-gray-800">{order.code}</td>
+                <tr key={payment.id} className="hover:bg-gray-50 transition">
+                  <td className="px-6 py-4 text-left text-sm text-gray-800">{payment.id}</td>
 
                   <td className="px-6 py-4 text-left text-sm text-gray-600">
-                    {dayjs(order.created_at).add(7, "hour").format("HH:mm, DD-MM-YYYY")}
+                    {dayjs(payment.created_at).add(7, "hour").format("HH:mm, DD-MM-YYYY")}
                   </td>
 
-                  <td className="px-6 py-4 text-left text-sm text-gray-600">{order?.user?.name || ""}</td>
+                  <td className="px-6 py-4 text-left text-sm text-gray-600">{payment?.user?.name || ""}</td>
 
                   <td className="px-6 py-4 text-left text-sm">
                     {paymentStatus === PAYMENT_STATUS.PENDING ? (
@@ -90,29 +91,7 @@ const OrderManagementPage = () => {
                     )}
                   </td>
 
-                  <td className="px-6 py-4 text-left text-sm">
-                    {(() => {
-                      const statusConfig = ORDER_STATUS_LIST[order?.status as ORDER_STATUS];
-
-                      if (statusConfig) {
-                        return (
-                          <span className="font-medium" style={{ color: statusConfig.color }}>
-                            {statusConfig.name}
-                          </span>
-                        );
-                      }
-
-                      return (
-                        <span className="font-medium text-gray-400 italic">
-                          {order?.status ? `Đang chuẩn bị` : "Chưa cập nhật"}
-                        </span>
-                      );
-                    })()}
-                  </td>
-
-                  <td className="px-6 py-4 text-left text-sm text-gray-800">
-                    {formatPriceVN(order?.totalAmount || 0)}
-                  </td>
+                  <td className="px-6 py-4 text-left text-sm text-gray-800">{formatPriceVN(payment?.amount || 0)}</td>
                 </tr>
               );
             })}
@@ -123,4 +102,4 @@ const OrderManagementPage = () => {
   );
 };
 
-export default OrderManagementPage;
+export default PaymentPage;

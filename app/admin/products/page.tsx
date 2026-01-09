@@ -24,7 +24,7 @@ const Product = ({ product, onClick }: { product: Product; onClick: () => void }
           {product?.stars || 0} ({product?.feedbackCount || 0} đánh giá)
         </td>
         <td className="px-6 py-4 text-right text-sm font-medium text-gray-700">
-          {dayjs(product?.created_at).format("HH:MM DD-MM-YYYY") || product?.created_at || ""}
+          {dayjs(product?.created_at).add(7, "hour").format("HH:MM DD-MM-YYYY") || product?.created_at || ""}
         </td>
       </tr>
     </>

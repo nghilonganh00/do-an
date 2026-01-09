@@ -1,3 +1,5 @@
+import { ORDER_STATUS } from "../constants";
+
 export type TabItem = {
   label: string;
   value: string | number | null;
@@ -15,4 +17,6 @@ export interface Params {
   query?: string;
   sortBy?: string;
   sortDir?: "asc" | "desc";
+  status?: ORDER_STATUS;
+  search?: string;
 }

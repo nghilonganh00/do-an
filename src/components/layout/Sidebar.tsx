@@ -47,22 +47,10 @@ const MENU_ITEMS = [
     icon: <Users size={18} />,
   },
   {
-    id: 6,
-    name: "Báo cáo",
-    link: "",
-    icon: <BarChart3 size={18} />,
-  },
-  {
     id: 7,
     name: "Mã giảm giá",
     link: "/admin/coupons",
     icon: <TicketPercent size={18} />,
-  },
-  {
-    id: 8,
-    name: "Hộp thư",
-    link: "",
-    icon: <Inbox size={18} />,
   },
 ];
 

@@ -8,8 +8,10 @@ import { useGetMe } from "@/src/features/user/hooks/useGetMe";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
 import dayjs from "dayjs";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage() {
+  const router = useRouter();
   const { data: user } = useGetMe();
   const { data } = useGetMyOrderHistory();
   const { data: orders } = data || {};
@@ -115,7 +117,11 @@ export default function DashboardPage() {
           </thead>
           <tbody>
             {orders?.map((item, index) => (
-              <tr key={index} className="border-t border-gray-200 hover:cursor-pointer hover:bg-gray-100">
+              <tr
+                key={index}
+                className="border-t border-gray-200 hover:cursor-pointer hover:bg-gray-100"
+                onClick={() => router.push("/dashboard/orders/" + item.id)}
+              >
                 <td className="px-6 py-4">{item?.id}</td>
                 <td className="px-6 py-4 text-right">
                   {(() => {
@@ -155,7 +161,9 @@ export default function DashboardPage() {
                     );
                   })()}
                 </td>
-                <td className="px-6 py-4 text-right">{dayjs(item?.created_at).format("DD/MM/YYYY HH:mm")}</td>
+                <td className="px-6 py-4 text-right">
+                  {dayjs(item?.created_at).add(7, "hour").format("DD/MM/YYYY HH:mm")}
+                </td>
                 <td className="px-6 py-4 text-right">{formatPriceVN(item?.totalAmount || 0)}</td>
               </tr>
             ))}

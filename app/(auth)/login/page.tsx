@@ -79,9 +79,9 @@ export default function LoginPage() {
             {errors.password && <p className="mt-1 text-body-small-400 text-red-500">{errors.password.message}</p>}
           </div>
 
-          <button type="button" className="text-body-small-500 text-secondary-500">
+          {/* <button type="button" className="text-body-small-500 text-secondary-500">
             Quên mật khẩu?
-          </button>
+          </button> */}
 
           <button
             type="submit"

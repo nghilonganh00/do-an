@@ -4,13 +4,13 @@ import { usePathname, useRouter } from "next/navigation";
 import { Stack } from "../../icons/Stack";
 import Link from "next/link";
 import { StoreFront } from "../../icons/StoreFront";
+import { ShoppingCartSmall } from "../../icons/ShoppingCartSmall";
+import { Logout } from "../../icons/Logout";
 
 const menuItems = [
   { name: "Bảng điều khiển", icon: Stack, path: "/dashboard", active: false },
   { name: "Lịch sử đơn hàng", icon: StoreFront, path: "/dashboard/orders", active: true },
-  { name: "Theo dõi đơn hàng", icon: Stack, path: "/track", active: false },
-  { name: "Giỏ hàng", icon: Stack, path: "/shopping-cart", active: false },
-  { name: "Danh sách yêu thích", icon: Stack, path: "/wishlist", active: false },
+  { name: "Giỏ hàng", icon: ShoppingCartSmall, path: "/shopping-cart", active: false },
   { name: "Cài đặt", icon: Stack, path: "/dashboard/setting", active: false },
 ];
 
@@ -39,7 +39,7 @@ export default function DashboardSidebar() {
       })}
       <div onClick={onLogout}>
         <div className={`flex items-center px-6 py-2.5 gap-3 cursor-pointer`}>
-          <Stack color={"var(--color-gray-600)"} />
+          <Logout color={"var(--color-gray-600)"} />
           <span className={`text-body-small-400 ${"text-gray-600"}`}>Đăng xuất</span>
         </div>
       </div>

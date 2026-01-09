@@ -15,6 +15,8 @@ export interface Product extends BaseEntity {
   name?: string;
   images?: string[];
   stars?: number;
+  viewCount?: number;
+  orderCount?: number;
   description?: string;
   metaDescription?: string;
   category?: Category;

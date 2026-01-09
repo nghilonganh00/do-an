@@ -9,6 +9,7 @@ import { Headphones } from "@/src/components/icons/Headphones";
 import { Medal } from "@/src/components/icons/Medal";
 import { ShoppingCartSimple } from "@/src/components/icons/ShoppingCartSimple";
 import { Truck } from "@/src/components/icons/Truck";
+import { useGetFeedbacksByProductId } from "@/src/features/feedback/hooks/useGetFeedbacksByProductId";
 import { useGetProductById } from "@/src/features/products/hooks/useGetProductById";
 import { useAddToCart } from "@/src/features/shoppingCart/hooks/useAddToCart";
 import { ProductVariant } from "@/src/types/product";
@@ -36,6 +37,8 @@ export default function ProductDetailPage() {
   });
 
   const { data: product } = useGetProductById(id);
+  const { data: feedbacks } = useGetFeedbacksByProductId(Number(id));
+  console.log("feedbacks: ", feedbacks);
 
   const categoryDropdownItems: DropdownItem[] = useMemo(
     () =>
@@ -103,8 +106,8 @@ export default function ProductDetailPage() {
                   <Star key={index} />
                 ))}
               </div>
-              <span className="text-body-small-600">{product?.stars || 5} sao đánh giá</span>
-              <span className="text-body-small-400 text-gray-600">(21,671 phản hồi người dùng)</span>
+              <span className="text-body-small-600">{product?.stars || 5} sao</span>
+              <span className="text-body-small-400 text-gray-600">( {product?.orderCount} phản hồi người dùng)</span>
             </div>
 
             <span className="text-body-xl-400 mt-2">{product?.name || ""}</span>
@@ -174,13 +177,6 @@ export default function ProductDetailPage() {
                 <span className="text-heading-6 text-primary-500">Mua ngay</span>
               </div>
             </div>
-
-            <div className="flex items-center justify-between mt-6">
-              <div className="flex items-center gap-1.5">
-                <Heart width={24} height={24} color="#475156" />
-                <span>Thêm vào danh sách yêu thích</span>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -227,7 +223,40 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        <div className="flex gap-6 my-[72]">
+        <div className="mt-16">
+          <h2 className="text-heading-4 font-semibold mb-6">Đánh giá từ khách hàng</h2>
+
+          <div className="space-y-6">
+            {feedbacks?.map((feedback) => (
+              <div key={feedback.id} className="bg-white border border-gray-100 rounded-lg p-6">
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-full bg-primary-100 flex items-center justify-center text-primary-600 font-semibold">
+                    {feedback.user?.name?.charAt(0) || "U"}
+                  </div>
+
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-body-medium-600">{feedback.user?.name || "Người dùng ẩn danh"}</h4>
+
+                      <div className="flex items-center gap-1">
+                        {Array.from({ length: feedback.rating || 5 }).map((_, idx) => (
+                          <Star key={idx} width={16} height={16} />
+                        ))}
+                      </div>
+                    </div>
+
+                    <p className="text-body-small-400 mt-2 leading-relaxed">{feedback.comment}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {!feedbacks?.length && (
+            <div className="text-center text-gray-500 mt-10">Chưa có đánh giá nào cho sản phẩm này 😢</div>
+          )}
+        </div>
+        {/* <div className="flex gap-6 my-[72]">
           <div>
             <div className="flex justify-between items-center mb-6">
               <span className="text-body-medium-600">SẢN PHẨM LIÊN QUAN</span>
@@ -327,7 +356,7 @@ export default function ProductDetailPage() {
                 ))}
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   );

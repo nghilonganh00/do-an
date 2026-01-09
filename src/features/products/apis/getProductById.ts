@@ -1,23 +1,10 @@
-import { supabase } from "@/src/lib/supabaseClient";
+import axiosInstance from "@/src/services/axiosInstance";
 import { Product } from "@/src/types/product";
 
 export const getProductById = async (id: string): Promise<Product | null> => {
-  const { data, error } = await supabase
-    .from("products")
-    .select(
-      `
-      *,
-      category:categories(*),
-      variants:productVariants(*)
-      `
-    )
-    .eq("id", id)
-    .single();
+  const response = await axiosInstance.get(`/products/${id}`);
 
-  if (error) {
-    console.error("Failed to fetch product:", error);
-    return null;
-  }
+  const data = response.data.data;
 
   return data ?? null;
 };

@@ -6,7 +6,11 @@ import { Package, Star } from "@/src/components/icons";
 import { Trophy } from "@/src/components/icons/Trophy";
 import { X } from "@/src/components/icons/X";
 import { useGetAllCategories } from "@/src/features/category/hooks/useGetAllCategories";
+import ProductRankingColumn from "@/src/features/homepage/components/ProductRankingColumn";
 import { useGetAllFeatureProducts } from "@/src/features/products/hooks/useGetAllFeatureProducts";
+import { useGetBestRatingProducts } from "@/src/features/products/hooks/useGetBestRatingProduct";
+import { useGetBestSellerProducts } from "@/src/features/products/hooks/useGetBestSellerProducts";
+import { useGetHotSalesProducts } from "@/src/features/products/hooks/useGetHotSalProducts";
 import { useGetAllProductsForBrower } from "@/src/features/products/hooks/useGetProductsForBrower";
 import { TabItem } from "@/src/types";
 import { formatPriceVN } from "@/src/utils/formatPriceVN";
@@ -30,10 +34,20 @@ export default function HomePage() {
 
   const { data: featureProducts } = useGetAllFeatureProducts();
 
+  const { data: hotSaleProductsData } = useGetHotSalesProducts({ limit: 4 });
+
   const { data: topRatedProductsData } = useGetAllProductsForBrower({
     limit: 4,
     sortBy: "starts",
     sortDir: "desc",
+  });
+
+  const { data: bestSellerProductsData } = useGetBestSellerProducts({
+    limit: 4,
+  });
+
+  const { data: bestRatingProductsData } = useGetBestRatingProducts({
+    limit: 4,
   });
 
   const handleToggleQuickView = useCallback(() => {
@@ -124,7 +138,7 @@ export default function HomePage() {
           </div>
 
           <div className="flex gap-6 my-[72]">
-            {["KHUYẾN MÃI HOT", "BÁN CHẠY NHẤT", "ĐÁNH GIÁ CAO", "SẢN PHẨM MỚI"].map((title, idx) => (
+            {["SẢN PHẨM MỚI"].map((title, idx) => (
               <div key={idx} className="flex-1">
                 <div className="mb-6">
                   <span className="text-body-medium-600">{title}</span>
@@ -156,6 +170,10 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+
+            <ProductRankingColumn title="KHUYẾN MÃI HOT" data={hotSaleProductsData!} />
+            <ProductRankingColumn title="BÁN CHẠY NHẤT" data={bestSellerProductsData!} />
+            <ProductRankingColumn title="ĐÁNH GIÁ CAO" data={bestRatingProductsData!} />
           </div>
         </div>
 
